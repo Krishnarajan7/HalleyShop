@@ -20,11 +20,11 @@ const FloatingButtons = () => {
 
   return (
     <>
-      {/* Wishlist & Chat - Bottom Left */}
-      <div className="fixed bottom-6 left-6 z-50 flex flex-col gap-3">
+      {/* Desktop: Wishlist & Chat - Bottom Left */}
+      <div className="fixed bottom-6 left-6 z-50 hidden md:flex flex-col gap-3">
         <Button
           size="icon"
-          className="w-12 h-12 rounded-full bg-accent hover:bg-accent/90 shadow-elegant"
+          className="w-12 h-12 rounded-full bg-accent hover:bg-accent/90 shadow-elegant transition-all hover:scale-110"
           aria-label="Wishlist"
         >
           <Heart className="h-5 w-5" />
@@ -32,11 +32,34 @@ const FloatingButtons = () => {
         
         <Button
           size="icon"
-          className="w-12 h-12 rounded-full bg-accent hover:bg-accent/90 shadow-elegant"
+          className="w-12 h-12 rounded-full bg-primary hover:bg-primary/90 shadow-elegant transition-all hover:scale-110"
           aria-label="Chat Support"
         >
           <MessageCircle className="h-5 w-5" />
         </Button>
+      </div>
+
+      {/* Mobile: Compact floating buttons - Bottom Center */}
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 md:hidden">
+        <div className="flex items-center gap-2 bg-background/95 backdrop-blur-sm border border-border rounded-full px-4 py-2 shadow-lg">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="w-8 h-8 rounded-full hover:bg-accent/20"
+            aria-label="Wishlist"
+          >
+            <Heart className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            size="icon"
+            variant="ghost"
+            className="w-8 h-8 rounded-full hover:bg-primary/20"
+            aria-label="Chat Support"
+          >
+            <MessageCircle className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Scroll to Top - Bottom Right */}
@@ -44,7 +67,7 @@ const FloatingButtons = () => {
         <Button
           onClick={scrollToTop}
           size="icon"
-          className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-secondary hover:bg-secondary/90 shadow-elegant animate-fade-in"
+          className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-secondary hover:bg-secondary/90 shadow-elegant animate-fade-in transition-all hover:scale-110"
           aria-label="Scroll to top"
         >
           <ArrowUp className="h-5 w-5" />
