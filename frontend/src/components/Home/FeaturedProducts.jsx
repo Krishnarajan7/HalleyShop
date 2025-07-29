@@ -1,7 +1,7 @@
 import ProductCard from "./ProductCard";
 import { Button } from "@/components/ui/button";
 
-// Mock product data
+// Mock product data with proper placeholder images
 const featuredProducts = [
   {
     id: "1",
@@ -10,7 +10,7 @@ const featuredProducts = [
     originalPrice: 299,
     rating: 4.8,
     reviews: 324,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&auto=format",
     badge: "Best Seller",
     discount: 33
   },
@@ -20,7 +20,7 @@ const featuredProducts = [
     price: 299,
     rating: 4.6,
     reviews: 156,
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop&auto=format",
     badge: "New" 
   },
   {
@@ -30,7 +30,7 @@ const featuredProducts = [
     originalPrice: 120,
     rating: 4.9,
     reviews: 89,
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&auto=format",
     badge: "Sale",
     discount: 26
   },
@@ -40,8 +40,8 @@ const featuredProducts = [
     price: 45,
     rating: 4.7,
     reviews: 203,
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop",
-    badge: "Trending"
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop&auto=format",
+    badge: "Trending" 
   },
   {
     id: "5",
@@ -50,7 +50,7 @@ const featuredProducts = [
     originalPrice: 599,
     rating: 4.9,
     reviews: 78,
-    image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=400&fit=crop&auto=format",
     badge: "Sale",
     discount: 25
   },
@@ -60,7 +60,7 @@ const featuredProducts = [
     price: 89,
     rating: 4.5,
     reviews: 134,
-    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop",
+    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop&auto=format",
     badge: "New" 
   },
   {
@@ -70,8 +70,8 @@ const featuredProducts = [
     originalPrice: 199,
     rating: 4.8,
     reviews: 267,
-    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop",
-    badge: "Best Seller" ,
+    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop&auto=format",
+    badge: "Best Seller",
     discount: 20
   },
   {
@@ -80,8 +80,8 @@ const featuredProducts = [
     price: 39,
     rating: 4.6,
     reviews: 92,
-    image: "https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?w=400&h=400&fit=crop",
-    badge: "Trending" 
+    image: "https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?w=400&h=400&fit=crop&auto=format",
+    badge: "Trending"
   }
 ];
 

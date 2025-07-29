@@ -49,19 +49,11 @@ const ProductCard = ({
           <Button 
             variant="ghost" 
             size="icon"
-            className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-background opacity-0 group-hover:opacity-100 transition-all"
+            className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-background hover:text-destructive transition-all"
           >
             <Heart className="h-4 w-4" />
           </Button>
         )}
-
-        {/* Quick Add */}
-        <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-          <Button size="sm" className="w-full bg-background/90 text-foreground hover:bg-background border border-border backdrop-blur-sm">
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Quick Add
-          </Button>
-        </div>
       </div>
 
       {/* Content */}
@@ -96,10 +88,16 @@ const ProductCard = ({
           )}
         </div>
 
-        {/* Add to Cart */}
-        <Button variant="outline" size="sm" className="w-full">
-          Add to Cart
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="flex-1">
+            <ShoppingCart className="h-4 w-4 mr-2" />
+            Add to Cart
+          </Button>
+          <Button variant="ghost" size="sm" className="px-3">
+            <Heart className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -38,13 +38,14 @@ const Header = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input 
                 placeholder="Search products..." 
-                className="pl-10 bg-muted/30 border border-border/50 focus:border-accent focus:bg-background focus:ring-1 focus:ring-accent/50 transition-all"
+                className="pl-10 bg-muted/20"
               />
             </div>
           </div>
 
           {/* Action Icons */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            {/* Desktop Icons */}
             <Button variant="ghost" size="icon" className="hidden md:flex">
               <Heart className="h-5 w-5" />
             </Button>
@@ -64,6 +65,13 @@ const Header = () => {
               </a>
             </Button>
 
+            {/* Mobile Icons - show login button */}
+            <Button variant="ghost" size="icon" className="md:hidden" asChild>
+              <a href="/auth">
+                <User className="h-4 w-4" />
+              </a>
+            </Button>
+
             {/* Mobile Menu Toggle */}
             <Button 
               variant="ghost" 
@@ -79,37 +87,30 @@ const Header = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t border-border animate-fade-in">
-            <div className="space-y-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input 
-                  placeholder="Search products..." 
-                  className="pl-10 bg-muted/30 border border-border/50 focus:border-accent focus:bg-background focus:ring-1 focus:ring-accent/50 transition-all"
-                />
-              </div>
-              <nav className="space-y-2">
-                <a href="/" className="block py-2 text-sm font-medium text-foreground hover:text-primary">Home</a>
-                <a href="/products" className="block py-2 text-sm font-medium text-foreground hover:text-primary">Products</a>
-                <a href="/deals" className="block py-2 text-sm font-medium text-foreground hover:text-primary">Deals</a>
-                <a href="/new-arrivals" className="block py-2 text-sm font-medium text-foreground hover:text-primary">New Arrivals</a>
-                <a href="/brands" className="block py-2 text-sm font-medium text-foreground hover:text-primary">Brands</a>
-                <a href="#" className="block py-2 text-sm font-medium text-foreground hover:text-primary">Wishlist</a>
-                <a href="/auth" className="block py-2 text-sm font-medium text-foreground hover:text-primary">Account</a>
-              </nav>
-            </div>
+            <nav className="space-y-2">
+              <a href="/" className="block py-3 px-2 text-sm font-medium text-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors">Home</a>
+              <a href="/products" className="block py-3 px-2 text-sm font-medium text-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors">Products</a>
+              <a href="/deals" className="block py-3 px-2 text-sm font-medium text-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors">Deals</a>
+              <a href="/new-arrivals" className="block py-3 px-2 text-sm font-medium text-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors">New Arrivals</a>
+              <a href="/brands" className="block py-3 px-2 text-sm font-medium text-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors">Brands</a>
+              <a href="#" className="block py-3 px-2 text-sm font-medium text-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors">Wishlist</a>
+              <a href="/auth" className="block py-3 px-2 text-sm font-medium text-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors">Account</a>
+            </nav>
           </div>
         )}
 
-        {/* Mobile Search Bar - Always visible on mobile */}
-        <div className="lg:hidden py-3 border-t border-border">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input 
-              placeholder="Search millions of products..." 
-              className="pl-10 bg-muted/30 border border-border/50 focus:border-accent focus:bg-background focus:ring-1 focus:ring-accent/50 transition-all"
-            />
+        {/* Mobile Search Bar - Only when menu is closed */}
+        {!isMenuOpen && (
+          <div className="md:hidden py-3 border-t border-border">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input 
+                placeholder="Search products..." 
+                className="pl-10 bg-muted/30 "
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </header>
   );
