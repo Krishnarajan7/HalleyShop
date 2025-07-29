@@ -15,7 +15,7 @@ const Auth = () => {
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Back to Home */}
-        <Button variant="ghost" asChild className="mb-6">
+        <Button variant="outline" asChild className="mb-6">
           <a href="/">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
@@ -40,12 +40,16 @@ const Auth = () => {
         <div className="bg-card border border-border rounded-2xl p-6 shadow-elegant">
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="register">Register</TabsTrigger>
+              <TabsTrigger value="login">Returning Customer</TabsTrigger>
+              <TabsTrigger value="register">New Customer</TabsTrigger>
             </TabsList>
 
             {/* Login Form */}
             <TabsContent value="login" className="space-y-6 mt-6">
+              <div className="text-center mb-4">
+                <h2 className="text-xl font-semibold">Welcome Back!</h2>
+                <p className="text-sm text-muted-foreground">Continue your shopping journey</p>
+              </div>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
@@ -121,6 +125,10 @@ const Auth = () => {
 
             {/* Register Form */}
             <TabsContent value="register" className="space-y-6 mt-6">
+              <div className="text-center mb-4">
+                <h2 className="text-xl font-semibold">Join HalleyShop!</h2>
+                <p className="text-sm text-muted-foreground">Create your account and start exploring</p>
+              </div>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>

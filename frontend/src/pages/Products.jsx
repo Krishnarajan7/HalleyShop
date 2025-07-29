@@ -10,15 +10,34 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 
-// Mock products data
+// Mock products data with proper placeholder images
+const productImages = [
+  "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&auto=format", // headphones
+  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop&auto=format", // watch
+  "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=400&fit=crop&auto=format", // laptop
+  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop&auto=format", // shirt
+  "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=400&fit=crop&auto=format", // camera
+  "https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?w=400&h=400&fit=crop&auto=format", // mug
+  "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop&auto=format", // sunglasses
+  "https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=400&h=400&fit=crop&auto=format", // smart watch
+];
+
+const productNames = [
+  "Premium Wireless Headphones", "Smart Fitness Watch", "Gaming Laptop Pro", "Organic Cotton T-Shirt",
+  "Professional Camera Lens", "Ceramic Coffee Mug Set", "Designer Sunglasses", "Bluetooth Speaker",
+  "Leather Backpack", "Wireless Charger", "Smart Home Device", "Running Shoes", "Desk Organizer",
+  "Phone Case Premium", "Tablet Stand", "Wireless Mouse", "Keyboard Mechanical", "Monitor Stand",
+  "USB-C Hub", "Portable Battery", "Book Collection", "Art Supplies", "Kitchen Gadget", "Travel Mug"
+];
+
 const products = Array.from({ length: 24 }, (_, i) => ({
   id: `product-${i + 1}`,
-  name: `Premium Product ${i + 1}`,
+  name: productNames[i] || `Premium Product ${i + 1}`,
   price: Math.floor(Math.random() * 300) + 50,
   originalPrice: Math.floor(Math.random() * 100) + 400,
   rating: 4 + Math.random(),
   reviews: Math.floor(Math.random() * 500) + 50,
-  image: `https://images.unsplash.com/photo-${1505740420928 + i}?w=400&h=400&fit=crop`,
+  image: productImages[i % productImages.length],
   badge: ["New", "Sale", "Trending", "Best Seller"][Math.floor(Math.random() * 4)],
   discount: Math.random() > 0.5 ? Math.floor(Math.random() * 50) + 10 : undefined
 }));

@@ -14,7 +14,7 @@ const Brands = () => {
     {
       id: 1,
       name: "Apple",
-      logo: "/placeholder.svg",
+      logo: "https://images.unsplash.com/photo-1621768216002-5ac171876625?w=200&h=200&fit=crop&auto=format",
       category: "Electronics",
       rating: 4.9,
       products: 1250,
@@ -25,7 +25,7 @@ const Brands = () => {
     {
       id: 2,
       name: "Samsung",
-      logo: "/placeholder.svg",
+      logo: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=200&h=200&fit=crop&auto=format",
       category: "Electronics",
       rating: 4.8,
       products: 2100,
@@ -36,7 +36,7 @@ const Brands = () => {
     {
       id: 3,
       name: "Nike",
-      logo: "/placeholder.svg",
+      logo: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=200&fit=crop&auto=format",
       category: "Fashion",
       rating: 4.7,
       products: 890,
@@ -47,7 +47,7 @@ const Brands = () => {
     {
       id: 4,
       name: "Sony",
-      logo: "/placeholder.svg",
+      logo: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop&auto=format",
       category: "Electronics",
       rating: 4.6,
       products: 1560,
