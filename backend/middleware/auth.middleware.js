@@ -1,16 +1,18 @@
-import jwt from 'jsonwebtoken'
-import { PrismaClient } from '@prisma/client'
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export const protect = async (req, res, next) => {
-  const token = req.cookies.token
-  if (!token) return res.status(401).json({ message: 'Not logged in' })
+  const token = req.cookies.token;
+  console.log('Protect middleware: Token received:', token || 'No token'); // Debug
+  if (!token) {
+    return res.status(401).json({ message: 'Not logged in' });
+  }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    
-    // Fetch full user object from database
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('Protect middleware: Decoded JWT:', decoded); // Debug
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
       select: {
@@ -20,24 +22,26 @@ export const protect = async (req, res, next) => {
         email: true,
         role: true,
         isProfileComplete: true,
-        createdAt: true
-      }
-    })
-    
+        createdAt: true,
+      },
+    });
+
     if (!user) {
-      return res.status(401).json({ message: 'User not found' })
+      console.log('Protect middleware: User not found for ID:', decoded.id); // Debug
+      return res.status(401).json({ message: 'User not found' });
     }
-    
-    req.user = user
-    next()
+
+    req.user = user;
+    next();
   } catch (err) {
-    return res.status(403).json({ message: 'Invalid or expired token' })
+    console.error('Protect middleware error:', err.message); // Debug
+    return res.status(403).json({ message: 'Invalid or expired token' });
   }
-}
+};
 
 export const adminOnly = (req, res, next) => {
-  // Only allow access if user is admin
   if (req.user.role !== 'admin') {
+    console.log('AdminOnly middleware: Access denied for user:', req.user); // Debug
     return res.status(403).json({ message: 'Admins only' });
   }
   next();
