@@ -70,7 +70,7 @@ const HeroCarousel = () => {
       <img 
         src={heroImage} 
         alt="Premium shopping experience" 
-        className="w-full h-[280px] md:h-[400px] lg:h-[500px] object-cover"
+        className="w-full h-[240px] md:h-[400px] lg:h-[500px] object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent"></div>
       
@@ -93,10 +93,10 @@ const HeroCarousel = () => {
         <ChevronRight className="h-5 w-5" />
       </Button>
 
-      {/* Floating Card with Current Slide Info */}
-      <div className="absolute top-4 right-4 bg-background/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg animate-fade-in">
+      {/* Floating Card with Current Slide Info - Hidden on mobile */}
+      <div className="absolute top-4 right-4 bg-background/95 backdrop-blur-sm rounded-2xl p-3 md:p-4 shadow-lg animate-fade-in hidden md:block">
         <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 ${heroSlides[currentSlide].badgeColor} rounded-xl flex items-center justify-center`}>
+          <div className={`w-10 h-10 md:w-12 md:h-12 ${heroSlides[currentSlide].badgeColor} rounded-xl flex items-center justify-center`}>
             <span className="text-white font-bold text-xs">{heroSlides[currentSlide].badge}</span>
           </div>
           <div>
@@ -122,13 +122,13 @@ const HeroCarousel = () => {
       </div>
 
       {/* Slide Content Overlay */}
-      <div className="absolute bottom-16 left-4 right-4 md:left-6 md:right-auto md:max-w-sm">
-        <div className="bg-background/95 backdrop-blur-sm rounded-2xl p-4 shadow-lg animate-fade-in">
-          <h3 className="font-bold text-lg mb-1">{heroSlides[currentSlide].title}</h3>
-          <p className="text-sm text-muted-foreground mb-3">{heroSlides[currentSlide].description}</p>
-          <Button size="sm" className="w-full md:w-auto">
+      <div className="absolute bottom-12 md:bottom-16 left-4 right-4 md:left-6 md:right-auto md:max-w-sm">
+        <div className="bg-background/95 backdrop-blur-sm rounded-2xl p-3 md:p-4 shadow-lg animate-fade-in">
+          <h3 className="font-bold text-base md:text-lg mb-1">{heroSlides[currentSlide].title}</h3>
+          <p className="text-xs md:text-sm text-muted-foreground mb-3 line-clamp-2">{heroSlides[currentSlide].description}</p>
+          <Button size="sm" className="w-full md:w-auto text-xs md:text-sm">
             {heroSlides[currentSlide].cta}
-            <ArrowRight className="h-4 w-4 ml-1" />
+            <ArrowRight className="h-3 w-3 md:h-4 md:w-4 ml-1" />
           </Button>
         </div>
       </div>

@@ -82,7 +82,7 @@ const CategoriesSection = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
+          <Button variant="outline" size="lg" onClick={() => window.location.href = '/products'}>
             View All Categories
           </Button>
         </div>

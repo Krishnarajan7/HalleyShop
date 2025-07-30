@@ -1,6 +1,7 @@
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useCart } from "@/context/CartContext";
 
 const ProductCard = ({ 
   id, 
@@ -13,6 +14,17 @@ const ProductCard = ({
   badge,
   discount 
 }) => {
+  const { addToCart } = useCart();
+  
+  const handleAddToCart = () => {
+    addToCart({
+      id,
+      name,
+      price,
+      originalPrice,
+      image
+    });
+  };
   const badgeVariants = {
     "New": "bg-success text-success-foreground",
     "Sale": "bg-destructive text-destructive-foreground", 
@@ -90,12 +102,12 @@ const ProductCard = ({
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1">
+          <Button variant="outline" size="sm" className="flex-1" onClick={handleAddToCart}>
             <ShoppingCart className="h-4 w-4 mr-2" />
             Add to Cart
           </Button>
-          <Button variant="ghost" size="sm" className="px-3">
-            <Heart className="h-4 w-4" />
+          <Button variant="ghost" size="sm" className="px-3 border border-transparent hover:border-red-200 hover:bg-red-50">
+            <Heart className="h-4 w-4 text-red-500" />
           </Button>
         </div>
       </div>

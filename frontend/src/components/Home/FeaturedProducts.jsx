@@ -1,7 +1,6 @@
 import ProductCard from "./ProductCard";
 import { Button } from "@/components/ui/button";
 
-// Mock product data with proper placeholder images
 const featuredProducts = [
   {
     id: "1",
@@ -31,7 +30,7 @@ const featuredProducts = [
     rating: 4.9,
     reviews: 89,
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&auto=format",
-    badge: "Sale",
+    badge: "Sale" ,
     discount: 26
   },
   {
@@ -51,7 +50,7 @@ const featuredProducts = [
     rating: 4.9,
     reviews: 78,
     image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=400&fit=crop&auto=format",
-    badge: "Sale",
+    badge: "Sale" ,
     discount: 25
   },
   {
@@ -61,7 +60,7 @@ const featuredProducts = [
     rating: 4.5,
     reviews: 134,
     image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop&auto=format",
-    badge: "New" 
+    badge: "New"
   },
   {
     id: "7",
@@ -81,7 +80,7 @@ const featuredProducts = [
     rating: 4.6,
     reviews: 92,
     image: "https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?w=400&h=400&fit=crop&auto=format",
-    badge: "Trending"
+    badge: "Trending" 
   }
 ];
 
@@ -111,7 +110,7 @@ const FeaturedProducts = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
+          <Button variant="outline" size="lg" onClick={() => window.location.href = '/products'}>
             View All Products
           </Button>
         </div>
