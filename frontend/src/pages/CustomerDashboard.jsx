@@ -24,6 +24,10 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import PageLoader from "@/components/ui/PageLoader";
+import { toast } from "@/components/ui/sonner";
+
+const MIN_LOADER_TIME = 700;
 
 const recentOrders = [
   {
@@ -70,13 +74,28 @@ const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
-    await logout();
-    navigate("/auth/login");
+    setIsLoading(true);
+    const start = Date.now();
+    try {
+      await logout();
+      const elapsed = Date.now() - start;
+      const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
+      setTimeout(() => {
+        navigate("/auth", { state: { loggedOut: true }, replace: true });
+      }, wait);
+    } catch (error) {
+      toast.error("Logout failed");
+      const elapsed = Date.now() - start;
+      const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
+      setTimeout(() => setIsLoading(false), wait);
+    }
   };
 
   // This page should be wrapped in a ProtectedRoute to ensure only logged-in customers can access it.
+  if (isLoading) return <PageLoader />;
   return (
     <div className="min-h-screen bg-background">
       <Header />

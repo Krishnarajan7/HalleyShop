@@ -1,19 +1,27 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { AuthContext } from "../context/AuthContext"; // Adjust path
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import PageLoader from "@/components/ui/PageLoader";
+import { toast } from "@/components/ui/sonner";
+
+const MIN_LOADER_TIME = 700;
+
+const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const validatePassword = (password) => password.length >= 8 && /[A-Z]/.test(password);
+const validateName = (name) => name.length >= 1;
 
 const Auth = () => {
+  const { user, isAdmin, loading, login, register, justLoggedOut, setJustLoggedOut } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
-  const { login, register, user, isAdmin, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // States for login
   const [loginEmail, setLoginEmail] = useState("");
@@ -32,76 +40,178 @@ const Auth = () => {
   const [authError, setAuthError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  // Redirect authenticated users
+  useEffect(() => {
+    console.log("Auth: loading =", loading, "user =", user); // Debug
+    if (!loading && user) {
+      console.log("Auth: Redirecting user:", user); // Debug
+      const dashboardPath = user.role ? `/dashboard/${user.role}` : "/dashboard/customer";
+      navigate(dashboardPath, { replace: true });
+    } else if (!loading && !user) {
+      console.log("Auth: No authenticated user"); // Debug
+    }
+  }, [loading, user, navigate]);
+
+  // Handle logout feedback
+  useEffect(() => {
+    if (justLoggedOut) {
+      console.log("Auth: Showing logout toast"); // Debug
+      toast.success("You have been logged out.");
+      setJustLoggedOut(false);
+      window.history.replaceState({}, document.title);
+    }
+  }, [justLoggedOut, setJustLoggedOut]);
+
+  // Reset forms on tab switch
+  const resetLoginForm = () => {
+    setLoginEmail("");
+    setLoginPassword("");
+    setShowPassword(false);
+    setAuthError("");
+    setSuccessMessage("");
+  };
+
+  const resetRegisterForm = () => {
+    setFirstName("");
+    setLastName("");
+    setRegisterEmail("");
+    setRegisterPassword("");
+    setConfirmPassword("");
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    setAuthError("");
+    setSuccessMessage("");
+  };
+
   // Login handler
   const handleLogin = async (e) => {
     e.preventDefault();
-    setAuthError("");
-    setSuccessMessage("");
+    if (!validateEmail(loginEmail)) {
+      setAuthError("Invalid email format.");
+      toast.error("Invalid email format.");
+      return;
+    }
+    if (!loginPassword) {
+      setAuthError("Password is required.");
+      toast.error("Password is required.");
+      return;
+    }
     setIsLoading(true);
+    setAuthError("");
+    const start = Date.now();
     try {
       const result = await login(loginEmail, loginPassword);
+      console.log("Auth: Login successful:", result); // Debug
       setSuccessMessage("Login successful!");
-      if (result?.user?.role === "admin") {
-        navigate("/dashboard/admin");
-      } else {
-        navigate("/dashboard/customer");
-      }
+      toast.success("Login successful!");
+      const elapsed = Date.now() - start;
+      const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
+      setTimeout(() => {
+        const dashboardPath = result.user.role
+          ? `/dashboard/${result.user.role}`
+          : "/dashboard/customer";
+        navigate(dashboardPath, { replace: true });
+      }, wait);
     } catch (err) {
-      setAuthError(
-        err.response?.data?.message || err.message || "Login failed"
-      );
-    } finally {
-      setIsLoading(false);
+      const errorMsg = err.response?.data?.message || err.message || "Login failed";
+      console.error("Auth: Login error:", errorMsg); // Debug
+      setAuthError(errorMsg);
+      toast.error(errorMsg);
+      const elapsed = Date.now() - start;
+      const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
+      setTimeout(() => setIsLoading(false), wait);
     }
   };
 
   // Register handler
   const handleRegister = async (e) => {
     e.preventDefault();
-    setAuthError("");
-    setSuccessMessage("");
+    if (!validateName(firstName)) {
+      setAuthError("First name is required.");
+      toast.error("First name is required.");
+      return;
+    }
+    if (!validateName(lastName)) {
+      setAuthError("Last name is required.");
+      toast.error("Last name is required.");
+      return;
+    }
+    if (!validateEmail(registerEmail)) {
+      setAuthError("Invalid email format.");
+      toast.error("Invalid email format.");
+      return;
+    }
+    if (!validatePassword(registerPassword)) {
+      setAuthError("Password must be 8+ characters with at least one uppercase letter.");
+      toast.error("Password must be 8+ characters with at least one uppercase letter.");
+      return;
+    }
     if (registerPassword !== confirmPassword) {
       setAuthError("Passwords do not match.");
+      toast.error("Passwords do not match.");
       return;
     }
     setIsLoading(true);
+    setAuthError("");
+    const start = Date.now();
     try {
-      await register(firstName, lastName, registerEmail, registerPassword);
-      setSuccessMessage("Registration successful! Redirecting...");
-      setSuccessMessage("Registration successful! Redirecting...");
-      navigate("/dashboard/customer");
+      const result = await register(firstName, lastName, registerEmail, registerPassword);
+      console.log("Auth: Register successful:", result); // Debug
+      setSuccessMessage("Account created successfully!");
+      toast.success("Account created successfully!");
+      const elapsed = Date.now() - start;
+      const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
+      setTimeout(() => {
+        navigate("/dashboard/customer", { replace: true });
+      }, wait);
     } catch (err) {
-      setAuthError(
-        err.response?.data?.message || err.message || "Registration failed"
-      );
-    } finally {
-      setIsLoading(false);
+      const errorMsg = err.response?.data?.message || err.message || "Registration failed";
+      console.error("Auth: Register error:", errorMsg); // Debug
+      setAuthError(errorMsg);
+      toast.error(errorMsg);
+      const elapsed = Date.now() - start;
+      const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
+      setTimeout(() => setIsLoading(false), wait);
     }
   };
 
-  const handleLogout = async () => {
+  // Google login (placeholder)
+  const handleGoogleLogin = async () => {
     setIsLoading(true);
+    setAuthError("");
     try {
-      await logout();
-      setSuccessMessage("Logged out successfully!");
-      navigate("/auth");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
+      // Replace with actual Google OAuth logic
+      console.log("Auth: Google login attempted"); // Debug
+      setSuccessMessage("Google login successful!");
+      toast.success("Google login successful!");
+      navigate("/dashboard/customer", { replace: true });
+    } catch (err) {
+      const errorMsg = err.message || "Google login failed";
+      console.error("Auth: Google login error:", errorMsg); // Debug
+      setAuthError(errorMsg);
+      toast.error(errorMsg);
       setIsLoading(false);
     }
   };
 
-  if (isLoading) return <PageLoader />;
+  // Forgot password (placeholder)
+  const handleForgotPassword = () => {
+    console.log("Auth: Navigating to forgot-password with email:", loginEmail); // Debug
+    navigate("/forgot-password", { state: { email: loginEmail } });
+  };
+
+  if (loading || isLoading) return <PageLoader />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Button variant="outline" asChild className="mb-6">
-          <a href="/">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </a>
+        <Button
+          variant="outline"
+          className="mb-6"
+          onClick={() => navigate("/", { replace: true })}
+          disabled={isLoading}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
         </Button>
 
         <div className="text-center mb-8">
@@ -120,14 +230,23 @@ const Auth = () => {
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-6 shadow-elegant">
-          <Tabs defaultValue="login" className="w-full">
+          {authError && <p className="text-red-500 text-sm mb-4">{authError}</p>}
+          {successMessage && <p className="text-green-500 text-sm mb-4">{successMessage}</p>}
+          <Tabs
+            defaultValue="login"
+            className="w-full"
+            onValueChange={(value) => {
+              if (value === "login") resetRegisterForm();
+              else resetLoginForm();
+            }}
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Returning Customer</TabsTrigger>
               <TabsTrigger value="register">New Customer</TabsTrigger>
             </TabsList>
 
             <TabsContent value="login" className="space-y-6 mt-6">
-              <form onSubmit={handleLogin} className="space-y-6">
+              <div className="space-y-6">
                 <div className="text-center mb-4">
                   <h2 className="text-xl font-semibold">Welcome Back!</h2>
                   <p className="text-sm text-muted-foreground">
@@ -145,6 +264,7 @@ const Auth = () => {
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       required
+                      disabled={isLoading}
                     />
                   </div>
                   <div>
@@ -158,6 +278,7 @@ const Auth = () => {
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
                         required
+                        disabled={isLoading}
                       />
                       <Button
                         type="button"
@@ -165,7 +286,8 @@ const Auth = () => {
                         size="icon"
                         className="absolute right-0 top-0 h-full px-3"
                         onClick={() => setShowPassword(!showPassword)}
-                        tabIndex={-1}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        disabled={isLoading}
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -177,33 +299,28 @@ const Auth = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <Checkbox id="remember" />
+                      <Checkbox id="remember" disabled={isLoading} />
                       <Label htmlFor="remember" className="text-sm">
                         Remember me
                       </Label>
                     </div>
-                    <Button variant="link" className="p-0 h-auto text-sm">
+                    <Button
+                      variant="link"
+                      className="p-0 h-auto text-sm"
+                      onClick={handleForgotPassword}
+                      disabled={isLoading}
+                    >
                       Forgot password?
                     </Button>
                   </div>
                 </div>
-                {authError && (
-                  <div className="text-red-500 text-sm">{authError}</div>
-                )}
-                {successMessage && (
-                  <div className="text-green-600 text-sm">{successMessage}</div>
-                )}
-                {user && (
-                  <Button
-                    type="button"
-                    onClick={handleLogout}
-                    className="w-full mt-2"
-                  >
-                    Logout
-                  </Button>
-                )}
-                <Button size="lg" className="w-full" type="submit">
-                  Sign In
+                <Button
+                  size="lg"
+                  className="w-full"
+                  onClick={handleLogin}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Signing In..." : "Sign In"}
                 </Button>
                 <div className="relative">
                   <Separator />
@@ -212,18 +329,23 @@ const Auth = () => {
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Button variant="outline" type="button">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    disabled={isLoading}
+                  >
                     Google
                   </Button>
-                  <Button variant="outline" type="button">
+                  <Button variant="outline" type="button" disabled={isLoading}>
                     Facebook
                   </Button>
                 </div>
-              </form>
+              </div>
             </TabsContent>
 
             <TabsContent value="register" className="space-y-6 mt-6">
-              <form onSubmit={handleRegister} className="space-y-6">
+              <div className="space-y-6">
                 <div className="text-center mb-4">
                   <h2 className="text-xl font-semibold">Join HalleyShop!</h2>
                   <p className="text-sm text-muted-foreground">
@@ -241,6 +363,7 @@ const Auth = () => {
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         required
+                        disabled={isLoading}
                       />
                     </div>
                     <div>
@@ -252,6 +375,7 @@ const Auth = () => {
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         required
+                        disabled={isLoading}
                       />
                     </div>
                   </div>
@@ -265,6 +389,7 @@ const Auth = () => {
                       value={registerEmail}
                       onChange={(e) => setRegisterEmail(e.target.value)}
                       required
+                      disabled={isLoading}
                     />
                   </div>
                   <div>
@@ -278,6 +403,7 @@ const Auth = () => {
                         value={registerPassword}
                         onChange={(e) => setRegisterPassword(e.target.value)}
                         required
+                        disabled={isLoading}
                       />
                       <Button
                         type="button"
@@ -285,7 +411,8 @@ const Auth = () => {
                         size="icon"
                         className="absolute right-0 top-0 h-full px-3"
                         onClick={() => setShowPassword(!showPassword)}
-                        tabIndex={-1}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        disabled={isLoading}
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -306,16 +433,16 @@ const Auth = () => {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         required
+                        disabled={isLoading}
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         className="absolute right-0 top-0 h-full px-3"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
-                        tabIndex={-1}
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                        disabled={isLoading}
                       >
                         {showConfirmPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -326,13 +453,15 @@ const Auth = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Checkbox id="terms" required />
+                    <Checkbox id="terms" required disabled={isLoading} />
                     <Label htmlFor="terms" className="text-sm">
                       I agree to the{" "}
                       <Button
                         variant="link"
                         className="p-0 h-auto text-sm"
                         type="button"
+                        onClick={() => navigate("/terms")}
+                        disabled={isLoading}
                       >
                         Terms of Service
                       </Button>{" "}
@@ -341,20 +470,21 @@ const Auth = () => {
                         variant="link"
                         className="p-0 h-auto text-sm"
                         type="button"
+                        onClick={() => navigate("/privacy")}
+                        disabled={isLoading}
                       >
                         Privacy Policy
                       </Button>
                     </Label>
                   </div>
                 </div>
-                {authError && (
-                  <div className="text-red-500 text-sm">{authError}</div>
-                )}
-                {successMessage && (
-                  <div className="text-green-600 text-sm">{successMessage}</div>
-                )}
-                <Button size="lg" className="w-full" type="submit">
-                  Create Account
+                <Button
+                  size="lg"
+                  className="w-full"
+                  onClick={handleRegister}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating Account..." : "Create Account"}
                 </Button>
                 <div className="relative">
                   <Separator />
@@ -363,14 +493,19 @@ const Auth = () => {
                   </span>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Button variant="outline" type="button">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    disabled={isLoading}
+                  >
                     Google
                   </Button>
-                  <Button variant="outline" type="button">
+                  <Button variant="outline" type="button" disabled={isLoading}>
                     Facebook
                   </Button>
                 </div>
-              </form>
+              </div>
             </TabsContent>
           </Tabs>
         </div>

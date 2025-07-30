@@ -1,5 +1,5 @@
 const PageLoader = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center">
+  <div className="fixed inset-0 z-50 bg-background/80 flex items-center justify-center">
     <div className="text-center space-y-4">
       <div className="relative">
         <span className="text-4xl font-bold font-space bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent">
