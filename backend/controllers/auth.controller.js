@@ -5,12 +5,11 @@ import jwt from 'jsonwebtoken';
 const prisma = new PrismaClient();
 const isProduction = process.env.NODE_ENV === 'production';
 
-// Register 
 export const register = async (req, res) => {
   try {
     const { firstName, lastName, email, password, role } = req.body;
 
-    // Validate input
+    // Validate input (Zod validation should be in middleware, but keep this as fallback)
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ message: 'All fields are required' });
     }
@@ -42,8 +41,9 @@ export const register = async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'Strict' : 'Lax',
+      sameSite: isProduction ? 'None' : 'Lax', // Allow cross-site requests
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
     });
 
     res.status(201).json({
@@ -63,7 +63,6 @@ export const register = async (req, res) => {
   }
 };
 
-// Login 
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -84,14 +83,15 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
+      expiresIn: '7d',
     });
 
     res.cookie('token', token, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'Strict' : 'Lax',
-      maxAge: 24 * 60 * 60 * 1000,
+      sameSite: isProduction ? 'None' : 'Lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
     });
 
     res.status(200).json({
@@ -111,11 +111,42 @@ export const login = async (req, res) => {
   }
 };
 
-// Logout 
 export const logout = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'Strict' : 'Lax',
+    sameSite: isProduction ? 'None' : 'Lax',
+    path: '/',
   }).status(200).json({ message: 'Logged out successfully' });
+};
+
+export const getMe = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ message: 'Not logged in' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        isProfileComplete: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ user });
+  } catch (err) {
+    console.error('GetMe error:', err);
+    res.status(401).json({ message: 'Invalid or expired token' });
+  }
 };
