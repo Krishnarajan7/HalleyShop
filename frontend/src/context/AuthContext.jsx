@@ -7,24 +7,31 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [justLoggedOut, setJustLoggedOut] = useState(false);
 
   useEffect(() => {
-    const token = document.cookie.split("; ").find((row) => row.startsWith("token="))?.split("=")[1];
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("token="))
+      ?.split("=")[1];
+    console.log("AuthContext: Token on mount:", token || "No token"); // Debug
     if (token) {
       axios
         .get("http://localhost:5000/api/auth/me", { withCredentials: true })
         .then((res) => {
+          console.log("AuthContext: Auth/me response:", res.data); // Debug
           setUser(res.data.user);
           setIsAdmin(res.data.user.role === "admin");
         })
         .catch((err) => {
-          document.cookie = "token=; Max-Age=0";
+          console.error("AuthContext: Auth/me error:", err.response?.data || err.message); // Debug
+          document.cookie = "token=; Max-Age=0; path=/; SameSite=Lax";
           setUser(null);
           setIsAdmin(false);
-          // Optionally redirect to login here if desired
         })
         .finally(() => setLoading(false));
     } else {
+      console.log("AuthContext: No token found"); // Debug
       setLoading(false);
     }
   }, []);
@@ -35,9 +42,10 @@ export const AuthProvider = ({ children }) => {
       { email, password },
       { withCredentials: true }
     );
+    console.log("AuthContext: Login response:", res.data); // Debug
     setUser(res.data.user);
     setIsAdmin(res.data.user.role === "admin");
-    return res.data; // Return the response data
+    return res.data;
   };
 
   const register = async (firstName, lastName, email, password, role = "customer") => {
@@ -46,19 +54,39 @@ export const AuthProvider = ({ children }) => {
       { firstName, lastName, email, password, role },
       { withCredentials: true }
     );
+    console.log("AuthContext: Register response:", res.data); // Debug
     setUser(res.data.user);
     setIsAdmin(res.data.user.role === "admin");
-    return res.data; // Return the response data
+    return res.data;
   };
 
   const logout = async () => {
-    await axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true });
-    setUser(null);
-    setIsAdmin(false);
+    try {
+      await axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true });
+      console.log("AuthContext: Logout successful"); // Debug
+      document.cookie = "token=; Max-Age=0; path=/; SameSite=Lax";
+      setUser(null);
+      setIsAdmin(false);
+      setJustLoggedOut(true);
+    } catch (err) {
+      console.error("AuthContext: Logout error:", err.response?.data || err.message); // Debug
+      throw err;
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, loading, login, register, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAdmin,
+        loading,
+        login,
+        register,
+        logout,
+        justLoggedOut,
+        setJustLoggedOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
