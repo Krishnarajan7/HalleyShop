@@ -114,7 +114,9 @@ const Cart = () => {
                     />
                     
                     <div className="flex-1">
-                      <h3 className="font-semibold mb-1">{item.name}</h3>
+                      <a href={`/product/${item.id}`} className="hover:text-primary transition-colors">
+                        <h3 className="font-semibold mb-1">{item.name}</h3>
+                      </a>
                       <div className="text-sm text-muted-foreground space-y-1">
                         <p>Size: {item.size}</p>
                         <p>Color: {item.color}</p>
