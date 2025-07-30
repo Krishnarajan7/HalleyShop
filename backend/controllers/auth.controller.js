@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Register 
 export const register = async (req, res) => {
@@ -40,8 +41,8 @@ export const register = async (req, res) => {
 
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false, 
-      sameSite: 'Lax',
+      secure: isProduction,
+      sameSite: isProduction ? 'Strict' : 'Lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -86,25 +87,24 @@ export const login = async (req, res) => {
       expiresIn: '1d',
     });
 
-    res
-      .cookie('token', token, {
-        httpOnly: true,
-        sameSite: 'Lax',
-        secure: false,
-        maxAge: 24 * 60 * 60 * 1000,
-      })
-      .status(200)
-      .json({
-        message: 'Login successful',
-        user: {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          role: user.role,
-          isProfileComplete: user.isProfileComplete,
-        },
-      });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'Strict' : 'Lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        isProfileComplete: user.isProfileComplete,
+      },
+    });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Something went wrong during login' });
@@ -113,5 +113,9 @@ export const login = async (req, res) => {
 
 // Logout 
 export const logout = (req, res) => {
-  res.clearCookie('token').status(200).json({ message: 'Logged out successfully' });
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'Strict' : 'Lax',
+  }).status(200).json({ message: 'Logged out successfully' });
 };
