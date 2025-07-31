@@ -20,15 +20,17 @@ model User {
 }
 
 model Product {
-  id        String   @id @default(uuid())
-  name      String
+  id          Int      @id @default(autoincrement())
+  name        String
   description String
-  price     Float
-  imageUrl  String
-  stock     Int
-  category  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  price       Float
+  stock       Int
+  imageUrl    String?
+  category    String
+  brand       String?
+  tags        String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Order {
@@ -40,4 +42,14 @@ model Order {
   status        String   @default("Pending")
   shippingAddress Json?  // { addressLine1, city, state, zip, country, phone }
   createdAt     DateTime @default(now())
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String   @unique
+  status    String   @default("Active") // "Active" | "Blocked"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

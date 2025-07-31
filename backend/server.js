@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth.routes.js';
+import productRoutes from './routes/product.routes.js';
+
 
 dotenv.config();
 
@@ -27,6 +29,7 @@ app.get('/', (req, res) => {
 
 // Auth routes
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
