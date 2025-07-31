@@ -22,6 +22,7 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Deals = lazy(() => import("./pages/Deals"));
 const NewArrivals = lazy(() => import("./pages/NewArrivals"));
 const Brands = lazy(() => import("./pages/Brands"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
 
 const MIN_LOADER_TIME = 700;
 
@@ -85,6 +86,7 @@ function AppRoutesWithLoader() {
         <Route path="/deals" element={<Deals />} />
         <Route path="/new-arrivals" element={<NewArrivals />} />
         <Route path="/brands" element={<Brands />} />
+        <Route path="/wishlist" element={<Wishlist/>}></Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
