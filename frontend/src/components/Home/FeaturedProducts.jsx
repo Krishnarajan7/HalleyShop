@@ -10,7 +10,7 @@ const featuredProducts = [
     rating: 4.8,
     reviews: 324,
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&auto=format",
-    badge: "Best Seller",
+    badge: "Best Seller" ,
     discount: 33
   },
   {
@@ -30,7 +30,7 @@ const featuredProducts = [
     rating: 4.9,
     reviews: 89,
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&auto=format",
-    badge: "Sale" ,
+    badge: "Sale",
     discount: 26
   },
   {
@@ -60,7 +60,7 @@ const featuredProducts = [
     rating: 4.5,
     reviews: 134,
     image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=400&h=400&fit=crop&auto=format",
-    badge: "New"
+    badge: "New" 
   },
   {
     id: "7",
@@ -110,8 +110,8 @@ const FeaturedProducts = () => {
         </div>
 
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg" onClick={() => window.location.href = '/products'}>
-            View All Products
+          <Button variant="outline" size="lg" asChild>
+            <a href="/products">View All Products</a>
           </Button>
         </div>
       </div>

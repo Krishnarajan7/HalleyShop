@@ -2,6 +2,7 @@ import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/context/CartContext";
+import { useState } from "react";
 
 const ProductCard = ({ 
   id, 
@@ -15,6 +16,7 @@ const ProductCard = ({
   discount 
 }) => {
   const { addToCart } = useCart();
+  const [isWishlisted, setIsWishlisted] = useState(false);
   
   const handleAddToCart = () => {
     addToCart({
@@ -24,6 +26,10 @@ const ProductCard = ({
       originalPrice,
       image
     });
+  };
+
+  const handleWishlistToggle = () => {
+    setIsWishlisted(!isWishlisted);
   };
   const badgeVariants = {
     "New": "bg-success text-success-foreground",
@@ -61,9 +67,10 @@ const ProductCard = ({
           <Button 
             variant="ghost" 
             size="icon"
-            className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-background hover:text-destructive transition-all"
+            onClick={handleWishlistToggle}
+            className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-red-50 hover:border-red-200 transition-all"
           >
-            <Heart className="h-4 w-4" />
+            <Heart className={`h-4 w-4 transition-colors ${isWishlisted ? 'text-red-500 fill-red-500' : 'text-muted-foreground hover:text-red-500'}`} />
           </Button>
         )}
       </div>
@@ -106,8 +113,13 @@ const ProductCard = ({
             <ShoppingCart className="h-4 w-4 mr-2" />
             Add to Cart
           </Button>
-          <Button variant="ghost" size="sm" className="px-3 border border-transparent hover:border-red-200 hover:bg-red-50">
-            <Heart className="h-4 w-4 text-red-500" />
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleWishlistToggle}
+            className="px-3 border border-transparent hover:border-red-200 hover:bg-red-50"
+          >
+            <Heart className={`h-4 w-4 transition-colors ${isWishlisted ? 'text-red-500 fill-red-500' : 'text-red-500'}`} />
           </Button>
         </div>
       </div>

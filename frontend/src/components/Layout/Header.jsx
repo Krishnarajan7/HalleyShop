@@ -82,11 +82,14 @@ const Header = () => {
               variant="ghost"
               size="icon"
               className="hidden md:flex border border-transparent hover:border-red-200 hover:bg-red-50"
+              asChild
             >
-              <Heart className="h-5 w-5 text-red-500 hover:text-red-600" />
+              <Link to="/wishlist">
+                <Heart className="h-5 w-5 text-red-500 hover:text-red-600" />
+              </Link>
             </Button>
 
-            <Button
+            <Button 
               variant="ghost"
               size="icon"
               className="relative border border-transparent hover:border-blue-200 hover:bg-blue-50"
