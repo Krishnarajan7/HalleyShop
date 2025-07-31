@@ -7,10 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useAuth } from "@/context/AuthContext";
-import PageLoader from "@/components/ui/PageLoader";
-import { toast } from "@/components/ui/sonner";
-import { useNavigate } from "react-router-dom";
+import ProductManagement from "@/components/admin/ProductManagement";
 
 const adminStats = {
   totalRevenue: 45231.89,
@@ -60,33 +57,13 @@ const topProducts = [
   }
 ];
 
-const MIN_LOADER_TIME = 700;
-
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogout = async () => {
-    setIsLoading(true);
-    const start = Date.now();
-    try {
-      await logout();
-      const elapsed = Date.now() - start;
-      const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
-      setTimeout(() => {
-        navigate("/auth", { state: { loggedOut: true }, replace: true });
-      }, wait);
-    } catch (error) {
-      toast.error("Logout failed");
-      const elapsed = Date.now() - start;
-      const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
-      setTimeout(() => setIsLoading(false), wait);
-    }
+  const handleLogout = () => {
+    // For now, just redirect to home - will be connected to Supabase later
+    window.location.href = "/";
   };
-
-  if (isLoading) return <PageLoader />;
 
   return (
     <div className="min-h-screen bg-background">
@@ -325,22 +302,7 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {activeTab === "products" && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-2xl font-bold">Product Management</h1>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Product
-                  </Button>
-                </div>
-                <Card>
-                  <CardContent className="p-6">
-                    <p className="text-center text-muted-foreground">Product management interface will be available here.</p>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+            {activeTab === "products" && <ProductManagement />}
 
             {activeTab === "customers" && (
               <div className="space-y-6">
