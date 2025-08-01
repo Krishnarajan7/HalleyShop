@@ -5,14 +5,14 @@ const prisma = new PrismaClient();
 
 export const protect = async (req, res, next) => {
   const token = req.cookies.token;
-  console.log('Protect middleware: Token received:', token || 'No token'); // Debug
+  console.log('Protect middleware: Token received:', token || 'No token'); 
   if (!token) {
     return res.status(401).json({ message: 'Not logged in' });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Protect middleware: Decoded JWT:', decoded); // Debug
+    console.log('Protect middleware: Decoded JWT:', decoded); 
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
       select: {
