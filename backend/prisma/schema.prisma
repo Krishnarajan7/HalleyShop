@@ -8,15 +8,17 @@ datasource db {
 }
 
 model User {
-  id              String   @id @default(uuid())
-  firstName       String?
-  lastName        String?
-  email           String   @unique
-  password        String
-  role            String   @default("customer") 
-  isProfileComplete Boolean @default(false)
-  createdAt       DateTime @default(now())
-  orders          Order[]
+  id                String   @id @default(uuid())
+  firstName         String?
+  lastName          String?
+  email             String   @unique
+  password          String
+  role              String   @default("customer") // "customer" or "admin"
+  isProfileComplete Boolean  @default(false)
+  status            String   @default("Active") // Add status here: "Active" | "Blocked"
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  orders            Order[]
 }
 
 model Product {
@@ -42,14 +44,4 @@ model Order {
   status        String   @default("Pending")
   shippingAddress Json?  // { addressLine1, city, state, zip, country, phone }
   createdAt     DateTime @default(now())
-}
-
-model Customer {
-  id        String   @id @default(cuid())
-  firstName String
-  lastName  String
-  email     String   @unique
-  status    String   @default("Active") // "Active" | "Blocked"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
