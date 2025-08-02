@@ -3,13 +3,14 @@ import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { useLocation } from "react-router-dom";
+import { useCart } from "@/context/CartContext";
 
 const PlaceOrder = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { items: cartItems, getCartTotal, getCartCount, clearCart } = useCart();
 
-  const [cartItems, setCartItems] = useState([]);
   const [shipping, setShipping] = useState({
     addressLine1: "",
     city: "",
@@ -32,7 +33,6 @@ const PlaceOrder = () => {
     const singleProductOrder = location.state?.items;
 
     if (singleProductOrder) {
-      setCartItems(singleProductOrder);
 
       const qtys = {};
       singleProductOrder.forEach((item) => {
@@ -40,10 +40,10 @@ const PlaceOrder = () => {
       });
       setQuantities(qtys);
     } else {
-      const stored = localStorage.getItem("cart");
+      const stored = localStorage.getItem("cartItems");
+
       if (stored) {
         const parsed = JSON.parse(stored);
-        setCartItems(parsed);
 
         const qtys = {};
         parsed.forEach((item) => {
@@ -109,8 +109,8 @@ const PlaceOrder = () => {
           title: "Order Placed",
           description: "Your order has been placed successfully.",
         });
-        localStorage.removeItem("cart");
-        setCartItems([]);
+        clearCart();
+
         navigate("/dashboard/customer");
       } else {
         toast({

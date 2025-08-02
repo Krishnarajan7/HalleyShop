@@ -14,11 +14,20 @@ import { toast } from "@/components/ui/sonner";
 const MIN_LOADER_TIME = 700;
 
 const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const validatePassword = (password) => password.length >= 8 && /[A-Z]/.test(password);
+const validatePassword = (password) =>
+  password.length >= 8 && /[A-Z]/.test(password);
 const validateName = (name) => name.length >= 1;
 
 const Auth = () => {
-  const { user, isAdmin, loading, login, register, justLoggedOut, setJustLoggedOut } = useContext(AuthContext);
+  const {
+    user,
+    isAdmin,
+    loading,
+    login,
+    register,
+    justLoggedOut,
+    setJustLoggedOut,
+  } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,17 +49,6 @@ const Auth = () => {
   const [authError, setAuthError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Redirect authenticated users
-  useEffect(() => {
-    console.log("Auth: loading =", loading, "user =", user); // Debug
-    if (!loading && user) {
-      console.log("Auth: Redirecting user:", user); // Debug
-      const dashboardPath = user.role ? `/dashboard/${user.role}` : "/dashboard/customer";
-      navigate(dashboardPath, { replace: true });
-    } else if (!loading && !user) {
-      console.log("Auth: No authenticated user"); // Debug
-    }
-  }, [loading, user, navigate]);
 
   // Handle logout feedback
   useEffect(() => {
@@ -87,39 +85,32 @@ const Auth = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!validateEmail(loginEmail)) {
-      setAuthError("Invalid email format.");
       toast.error("Invalid email format.");
       return;
     }
     if (!loginPassword) {
-      setAuthError("Password is required.");
       toast.error("Password is required.");
       return;
     }
     setIsLoading(true);
-    setAuthError("");
-    const start = Date.now();
     try {
-      const result = await login(loginEmail, loginPassword);
-      console.log("Auth: Login successful:", result); // Debug
-      setSuccessMessage("Login successful!");
+      const res = await login(loginEmail, loginPassword);
       toast.success("Login successful!");
-      const elapsed = Date.now() - start;
-      const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
-      setTimeout(() => {
-        const dashboardPath = result.user.role
-          ? `/dashboard/${result.user.role}`
-          : "/dashboard/customer";
-        navigate(dashboardPath, { replace: true });
-      }, wait);
+
+      // Redirect immediately after login
+      if (location.state?.from) {
+        navigate(location.state.from, { replace: true });
+      } else if (res.user.role === "admin") {
+        navigate("/dashboard/admin", { replace: true });
+      } else {
+        navigate("/dashboard/customer", { replace: true });
+      }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || "Login failed";
-      console.error("Auth: Login error:", errorMsg); // Debug
-      setAuthError(errorMsg);
+      const errorMsg =
+        err.response?.data?.message || err.message || "Login failed";
       toast.error(errorMsg);
-      const elapsed = Date.now() - start;
-      const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
-      setTimeout(() => setIsLoading(false), wait);
+    } finally {
+      setTimeout(() => setIsLoading(false), MIN_LOADER_TIME);
     }
   };
 
@@ -142,8 +133,12 @@ const Auth = () => {
       return;
     }
     if (!validatePassword(registerPassword)) {
-      setAuthError("Password must be 8+ characters with at least one uppercase letter.");
-      toast.error("Password must be 8+ characters with at least one uppercase letter.");
+      setAuthError(
+        "Password must be 8+ characters with at least one uppercase letter."
+      );
+      toast.error(
+        "Password must be 8+ characters with at least one uppercase letter."
+      );
       return;
     }
     if (registerPassword !== confirmPassword) {
@@ -155,17 +150,24 @@ const Auth = () => {
     setAuthError("");
     const start = Date.now();
     try {
-      const result = await register(firstName, lastName, registerEmail, registerPassword);
+      const result = await register(
+        firstName,
+        lastName,
+        registerEmail,
+        registerPassword
+      );
       console.log("Auth: Register successful:", result); // Debug
       setSuccessMessage("Account created successfully!");
       toast.success("Account created successfully!");
       const elapsed = Date.now() - start;
       const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
       setTimeout(() => {
-        navigate("/dashboard/customer", { replace: true });
+        const redirectTo = location.state?.from || "/";
+        navigate(redirectTo, { replace: true });
       }, wait);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || "Registration failed";
+      const errorMsg =
+        err.response?.data?.message || err.message || "Registration failed";
       console.error("Auth: Register error:", errorMsg); // Debug
       setAuthError(errorMsg);
       toast.error(errorMsg);
@@ -184,7 +186,8 @@ const Auth = () => {
       console.log("Auth: Google login attempted"); // Debug
       setSuccessMessage("Google login successful!");
       toast.success("Google login successful!");
-      navigate("/dashboard/customer", { replace: true });
+      const redirectTo = location.state?.from || "/";
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       const errorMsg = err.message || "Google login failed";
       console.error("Auth: Google login error:", errorMsg); // Debug
@@ -230,8 +233,12 @@ const Auth = () => {
         </div>
 
         <div className="bg-card border border-border rounded-2xl p-6 shadow-elegant">
-          {authError && <p className="text-red-500 text-sm mb-4">{authError}</p>}
-          {successMessage && <p className="text-green-500 text-sm mb-4">{successMessage}</p>}
+          {authError && (
+            <p className="text-red-500 text-sm mb-4">{authError}</p>
+          )}
+          {successMessage && (
+            <p className="text-green-500 text-sm mb-4">{successMessage}</p>
+          )}
           <Tabs
             defaultValue="login"
             className="w-full"
@@ -286,7 +293,9 @@ const Auth = () => {
                         size="icon"
                         className="absolute right-0 top-0 h-full px-3"
                         onClick={() => setShowPassword(!showPassword)}
-                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
                         disabled={isLoading}
                       >
                         {showPassword ? (
@@ -411,7 +420,9 @@ const Auth = () => {
                         size="icon"
                         className="absolute right-0 top-0 h-full px-3"
                         onClick={() => setShowPassword(!showPassword)}
-                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
                         disabled={isLoading}
                       >
                         {showPassword ? (
@@ -440,8 +451,14 @@ const Auth = () => {
                         variant="ghost"
                         size="icon"
                         className="absolute right-0 top-0 h-full px-3"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        aria-label={
+                          showConfirmPassword
+                            ? "Hide confirm password"
+                            : "Show confirm password"
+                        }
                         disabled={isLoading}
                       >
                         {showConfirmPassword ? (
