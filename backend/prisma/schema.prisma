@@ -1,47 +1,68 @@
-generator client {
-  provider = "prisma-client-js"
-}
+  generator client {
+    provider = "prisma-client-js"
+  }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+  datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+  }
 
-model User {
-  id                String   @id @default(uuid())
-  firstName         String?
-  lastName          String?
-  email             String   @unique
-  password          String
-  role              String   @default("customer") // "customer" or "admin"
-  isProfileComplete Boolean  @default(false)
-  status            String   @default("Active") // Add status here: "Active" | "Blocked"
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  orders            Order[]
-}
+  // Enums
+  enum Role {
+    customer
+    admin
+  }
 
-model Product {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String
-  price       Float
-  stock       Int
-  imageUrl    String?
-  category    String
-  brand       String?
-  tags        String[] @default([])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
+  enum Status {
+    Active
+    Blocked
+  }
 
-model Order {
-  id            String   @id @default(uuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id])
-  products      Json     // Array of { productId, quantity, price }
-  total         Float
-  status        String   @default("Pending")
-  shippingAddress Json?  // { addressLine1, city, state, zip, country, phone }
-  createdAt     DateTime @default(now())
-}
+  enum OrderStatus {
+    Pending
+    Processing
+    Shipped
+    Delivered
+    Cancelled
+  }
+
+  // Models
+  model User {
+    id                String   @id @default(uuid())
+    firstName         String?
+    lastName          String?
+    email             String   @unique
+    password          String
+    role              Role     @default(customer)
+    isProfileComplete Boolean  @default(false)
+    status            Status   @default(Active)
+    createdAt         DateTime @default(now())
+    updatedAt         DateTime @updatedAt
+    orders            Order[]
+  }
+
+  model Product {
+    id          Int      @id @default(autoincrement())
+    name        String
+    description String
+    price       Float
+    stock       Int
+    imageUrl    String?
+    category    String
+    brand       String?
+    tags        String[] @default([])
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+  }
+
+  model Order {
+    id              String        @id @default(uuid())
+    userId          String
+    user            User          @relation(fields: [userId], references: [id])
+    products        Json          // Array of { productId, quantity, price }
+    total           Float
+    status          OrderStatus   @default(Pending)
+    shippingAddress Json?         // { addressLine1, city, state, zip, country, phone }
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
+  }
