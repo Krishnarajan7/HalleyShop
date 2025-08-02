@@ -2,13 +2,14 @@ import express from 'express';
 import {
   listCustomers, getCustomer, createCustomer, updateCustomer,
   resetCustomerPassword, setPortalAccess, deleteCustomer,
-  blockCustomer, unblockCustomer, impersonateCustomer
+  blockCustomer, unblockCustomer, impersonateCustomer, getDashboardStats 
 } from '../controllers/admin.controller.js';
 import { protect, adminOnly } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 router.use(protect, adminOnly);
 
+router.get('/stats', getDashboardStats);
 router.get('/customers', listCustomers);
 router.get('/customers/:id', getCustomer);
 router.post('/customers', createCustomer);
