@@ -24,7 +24,10 @@ export const AuthProvider = ({ children }) => {
           setIsAdmin(res.data.user.role === "admin");
         })
         .catch((err) => {
-          console.error("AuthContext: Auth/me error:", err.response?.data || err.message); // Debug
+          console.error(
+            "AuthContext: Auth/me error:",
+            err.response?.data || err.message
+          ); // Debug
           document.cookie = "token=; Max-Age=0; path=/; SameSite=Lax";
           setUser(null);
           setIsAdmin(false);
@@ -48,7 +51,13 @@ export const AuthProvider = ({ children }) => {
     return res.data;
   };
 
-  const register = async (firstName, lastName, email, password, role = "customer") => {
+  const register = async (
+    firstName,
+    lastName,
+    email,
+    password,
+    role = "customer"
+  ) => {
     const res = await axios.post(
       "http://localhost:5000/api/auth/register",
       { firstName, lastName, email, password, role },
@@ -62,14 +71,41 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post("http://localhost:5000/api/auth/logout", {}, { withCredentials: true });
+      await axios.post(
+        "http://localhost:5000/api/auth/logout",
+        {},
+        { withCredentials: true }
+      );
       console.log("AuthContext: Logout successful"); // Debug
       document.cookie = "token=; Max-Age=0; path=/; SameSite=Lax";
       setUser(null);
       setIsAdmin(false);
       setJustLoggedOut(true);
     } catch (err) {
-      console.error("AuthContext: Logout error:", err.response?.data || err.message); // Debug
+      console.error(
+        "AuthContext: Logout error:",
+        err.response?.data || err.message
+      ); // Debug
+      throw err;
+    }
+  };
+
+  const updateUser = async (data) => {
+    try {
+      const res = await axios.put(
+        "http://localhost:5000/api/customer/profile", 
+        data,
+        { withCredentials: true }
+      );
+      console.log("AuthContext: Update user response:", res.data);
+      setUser(res.data.user);
+      setIsAdmin(res.data.user.role === "admin");
+      return res.data;
+    } catch (err) {
+      console.error(
+        "AuthContext: Update user error:",
+        err.response?.data || err.message
+      );
       throw err;
     }
   };
@@ -83,6 +119,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
+        updateUser,
         justLoggedOut,
         setJustLoggedOut,
       }}
