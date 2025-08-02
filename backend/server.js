@@ -6,6 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import customerRoutes from './routes/customer.routes.js';
+import orderRoutes from "./routes/order.routes.js";
 import productRoutes from './routes/product.routes.js';
 
 
@@ -32,7 +33,8 @@ app.get('/', (req, res) => {
 // Auth routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/admin/customers', customerRoutes);
+app.use('/api/customer', customerRoutes);
+app.use("/api/orders", orderRoutes);
 app.use('/api/products', productRoutes);
 
 const PORT = process.env.PORT || 5000;
