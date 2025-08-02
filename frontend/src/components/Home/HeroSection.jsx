@@ -1,9 +1,33 @@
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
 import HeroCarousel from "./HeroCarousel";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/auth/me", {
+          credentials: "include", // send cookie
+        });
+        if (res.ok) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-background via-primary/5 to-accent/10 animate-fade-in">
       {/* Background Pattern */}
@@ -43,16 +67,17 @@ const HeroSection = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               {/* Start Shopping Button */}
-              <Link to="/Products" className="group">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="font-semibold flex items-center gap-2"
-                >
-                  Start Shopping
-                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
+              <Button
+                onClick={() =>
+                  isAuthenticated ? navigate("/products") : navigate("/auth")
+                }
+                variant="outline"
+                size="lg"
+                className="font-semibold flex items-center gap-2"
+              >
+                Start Shopping
+                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              </Button>
 
               {/* Browse Deals Button */}
               <Link to="/Deals" className="group">

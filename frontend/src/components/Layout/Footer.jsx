@@ -92,13 +92,13 @@ const Footer = () => {
               <div className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 mt-0.5 text-accent shrink-0" />
                 <span className="text-primary-foreground/80 font-inter">
-                  123 Shopping Street<br />
-                  Commerce City, CC 12345
+                  Halleyx, Pooja garden, 11/4, Kalapatti Main Rd, Indira Nagar, Civil Aerodrome Post,<br/>
+                  Coimbatore, Tamil Nadu 641014
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-accent" />
-                <span className="text-primary-foreground/80 font-inter">+1 (555) 123-4567</span>
+                <span className="text-primary-foreground/80 font-inter">9345280327</span>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-accent" />

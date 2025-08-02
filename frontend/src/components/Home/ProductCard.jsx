@@ -1,76 +1,129 @@
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import { Heart, ShoppingCart, Star, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "sonner";
 
-const ProductCard = ({ 
-  id, 
-  name, 
-  price, 
-  originalPrice, 
-  rating, 
-  reviews, 
-  image, 
+const ProductCard = ({
+  id,
+  name,
+  price,
+  originalPrice,
+  rating,
+  reviews,
+  image,
   badge,
-  discount 
+  discount,
 }) => {
   const { addToCart } = useCart();
   const [isWishlisted, setIsWishlisted] = useState(false);
-  
+  const navigate = useNavigate();
+
+  const isAuthenticated = document.cookie.includes("token=");
+
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      navigate("/auth");
+      return;
+    }
+
     addToCart({
       id,
       name,
       price,
       originalPrice,
-      image
+      image,
     });
+
+    toast.success(`${name} added to cart`);
   };
 
   const handleWishlistToggle = () => {
+    if (!isAuthenticated) {
+      navigate("/auth");
+      return;
+    }
+
     setIsWishlisted(!isWishlisted);
+
+    if (!isWishlisted) {
+      toast.success(`${name} added to wishlist`);
+    } else {
+      toast.warning(`${name} removed from wishlist`);
+    }
   };
+
+  const handlePlaceOrder = () => {
+    if (!isAuthenticated) {
+      navigate("/place-order");
+      return;
+    }
+
+    // Send product to place-order page
+    navigate("/place-order", {
+      state: {
+        items: [
+          {
+            productId: id,
+            name,
+            image,
+            quantity: 1,
+            price,
+          },
+        ],
+      },
+    });
+  };
+
   const badgeVariants = {
-    "New": "bg-success text-success-foreground",
-    "Sale": "bg-destructive text-destructive-foreground", 
-    "Trending": "bg-accent text-accent-foreground",
-    "Best Seller": "bg-primary text-primary-foreground"
+    New: "bg-success text-success-foreground",
+    Sale: "bg-destructive text-destructive-foreground",
+    Trending: "bg-accent text-accent-foreground",
+    "Best Seller": "bg-primary text-primary-foreground",
   };
 
   return (
-    <div className="group relative bg-card rounded-2xl border border-border hover:border-accent/50 overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+    <div className="group relative bg-white rounded-2xl border border-gray-200 hover:border-primary shadow-md hover:shadow-xl overflow-hidden transition-all duration-300">
       {/* Image */}
-      <div className="relative overflow-hidden bg-muted/20">
-        <img 
-          src={image} 
+      <div className="relative overflow-hidden bg-gray-50">
+        <img
+          src={image}
           alt={name}
-          className="w-full h-48 md:h-56 object-cover group-hover:scale-110 transition-transform duration-500"
+          className="w-full h-48 md:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        
+
         {/* Badge */}
         {badge && (
-          <Badge className={`absolute top-3 left-3 ${badgeVariants[badge]}`}>
+          <Badge
+            className={`absolute top-3 left-3 ${badgeVariants[badge] || ""}`}
+          >
             {badge}
           </Badge>
         )}
 
         {/* Discount */}
         {discount && (
-          <div className="absolute top-3 right-3 bg-destructive text-destructive-foreground text-sm font-bold px-2 py-1 rounded-lg">
+          <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
             -{discount}%
           </div>
         )}
 
         {/* Wishlist */}
         {!discount && (
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             onClick={handleWishlistToggle}
-            className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-red-50 hover:border-red-200 transition-all"
+            className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm hover:bg-red-100 transition-all border"
           >
-            <Heart className={`h-4 w-4 transition-colors ${isWishlisted ? 'text-red-500 fill-red-500' : 'text-muted-foreground hover:text-red-500'}`} />
+            <Heart
+              className={`h-5 w-5 transition-colors ${
+                isWishlisted ? "text-red-500 fill-red-500" : "text-gray-500"
+              }`}
+            />
           </Button>
         )}
       </div>
@@ -78,28 +131,28 @@ const ProductCard = ({
       {/* Content */}
       <div className="p-4 space-y-3">
         {/* Rating */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star 
-                key={i} 
-                className={`h-3 w-3 ${i < Math.floor(rating) ? 'text-accent fill-accent' : 'text-muted-foreground'}`} 
-              />
-            ))}
-          </div>
-          <span className="text-xs text-muted-foreground">({reviews})</span>
+        <div className="flex items-center gap-2 text-yellow-500">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={`h-4 w-4 ${
+                i < Math.floor(rating)
+                  ? "fill-yellow-500 text-yellow-500"
+                  : "text-gray-300"
+              }`}
+            />
+          ))}
+          <span className="text-xs text-gray-500">({reviews})</span>
         </div>
 
-        {/* Name */}
-        <h3 className="font-semibold font-space text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors">
+        {/* Title */}
+        <h3 className="font-semibold text-base md:text-lg line-clamp-2 hover:text-primary transition-colors">
           {name}
         </h3>
 
         {/* Price */}
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-primary">
-            ${price}
-          </span>
+          <span className="text-lg font-bold text-primary">${price}</span>
           {originalPrice && (
             <span className="text-sm text-muted-foreground line-through">
               ${originalPrice}
@@ -107,19 +160,15 @@ const ProductCard = ({
           )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1" onClick={handleAddToCart}>
+        {/* Buttons */}
+        <div className="grid grid-cols-2 gap-2 pt-2">
+          <Button onClick={handleAddToCart} variant="outline" size="sm">
             <ShoppingCart className="h-4 w-4 mr-2" />
-            Add to Cart
+            Cart
           </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleWishlistToggle}
-            className="px-3 border border-transparent hover:border-red-200 hover:bg-red-50"
-          >
-            <Heart className={`h-4 w-4 transition-colors ${isWishlisted ? 'text-red-500 fill-red-500' : 'text-red-500'}`} />
+          <Button onClick={handlePlaceOrder} variant="default" size="sm">
+            <Truck className="h-4 w-4 mr-2" />
+            Order
           </Button>
         </div>
       </div>
