@@ -25,7 +25,6 @@ const Brands = lazy(() => import("./pages/Brands"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const PlaceOrder = lazy(() => import("./pages/PlaceOrder"));
 
-
 const MIN_LOADER_TIME = 700;
 
 const queryClient = new QueryClient();
@@ -33,15 +32,15 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <CartProvider>
-        <Toaster />
-        <Sonner />
+      <BrowserRouter>
         <AuthProvider>
-          <BrowserRouter>
+          <CartProvider>
+            <Toaster />
+            <Sonner />
             <AppRoutesWithLoader />
-          </BrowserRouter>
+          </CartProvider>
         </AuthProvider>
-      </CartProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
@@ -69,8 +68,8 @@ function AppRoutesWithLoader() {
   // Always scroll to top and disable browser scroll restoration on route change/refresh
   useEffect(() => {
     window.scrollTo(0, 0);
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
     }
   }, [location.pathname]);
 
@@ -89,7 +88,7 @@ function AppRoutesWithLoader() {
         <Route path="/deals" element={<Deals />} />
         <Route path="/new-arrivals" element={<NewArrivals />} />
         <Route path="/brands" element={<Brands />} />
-        <Route path="/wishlist" element={<Wishlist/>}></Route>
+        <Route path="/wishlist" element={<Wishlist />}></Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
