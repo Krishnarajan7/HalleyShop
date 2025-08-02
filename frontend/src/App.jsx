@@ -23,6 +23,8 @@ const Deals = lazy(() => import("./pages/Deals"));
 const NewArrivals = lazy(() => import("./pages/NewArrivals"));
 const Brands = lazy(() => import("./pages/Brands"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
+const PlaceOrder = lazy(() => import("./pages/PlaceOrder"));
+
 
 const MIN_LOADER_TIME = 700;
 
@@ -79,6 +81,7 @@ function AppRoutesWithLoader() {
         <Route path="/" element={<Index />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetail />} />
+        <Route path="/place-order" element={<PlaceOrder />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/dashboard/customer" element={<CustomerDashboard />} />
