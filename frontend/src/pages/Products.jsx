@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { Filter, Grid, List, SlidersHorizontal } from "lucide-react";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
@@ -6,69 +7,91 @@ import FloatingButtons from "@/components/Layout/FloatingButtons";
 import ProductCard from "@/components/Home/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 
-// Mock products data with proper placeholder images
-const productImages = [
-  "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop&auto=format", // headphones
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop&auto=format", // watch
-  "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=400&h=400&fit=crop&auto=format", // laptop
-  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop&auto=format", // shirt
-  "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=400&fit=crop&auto=format", // camera
-  "https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?w=400&h=400&fit=crop&auto=format", // mug
-  "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop&auto=format", // sunglasses
-  "https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=400&h=400&fit=crop&auto=format", // smart watch
+const categories = [
+  "Electronics",
+  "Fashion",
+  "Home & Living",
+  "Sports",
+  "Beauty",
+  "Books",
 ];
-
-const productNames = [
-  "Premium Wireless Headphones", "Smart Fitness Watch", "Gaming Laptop Pro", "Organic Cotton T-Shirt",
-  "Professional Camera Lens", "Ceramic Coffee Mug Set", "Designer Sunglasses", "Bluetooth Speaker",
-  "Leather Backpack", "Wireless Charger", "Smart Home Device", "Running Shoes", "Desk Organizer",
-  "Phone Case Premium", "Tablet Stand", "Wireless Mouse", "Keyboard Mechanical", "Monitor Stand",
-  "USB-C Hub", "Portable Battery", "Book Collection", "Art Supplies", "Kitchen Gadget", "Travel Mug"
+const brands = [
+  "Apple",
+  "Samsung",
+  "Nike",
+  "Adidas",
+  "Sony",
+  "LG",
+  "Zara",
+  "H&M",
 ];
-
-const products = Array.from({ length: 24 }, (_, i) => ({
-  id: `product-${i + 1}`,
-  name: productNames[i] || `Premium Product ${i + 1}`,
-  price: Math.floor(Math.random() * 300) + 50,
-  originalPrice: Math.floor(Math.random() * 100) + 400,
-  rating: 4 + Math.random(),
-  reviews: Math.floor(Math.random() * 500) + 50,
-  image: productImages[i % productImages.length],
-  badge: ["New", "Sale", "Trending", "Best Seller"][Math.floor(Math.random() * 4)],
-  discount: Math.random() > 0.5 ? Math.floor(Math.random() * 50) + 10 : undefined
-}));
-
-const categories = ["Electronics", "Fashion", "Home & Living", "Sports", "Beauty", "Books"];
-const brands = ["Apple", "Samsung", "Nike", "Adidas", "Sony", "LG", "Zara", "H&M"];
 
 const Products = () => {
-  const [viewMode, setViewMode] = useState('grid');
+  const [viewMode, setViewMode] = useState("grid");
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [showFilters, setShowFilters] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products", {
+          credentials: "include", // if auth is required
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch products");
+        }
+
+        const data = await res.json();
+        console.log("Fetched data:", data);
+        setProducts(data.data?.products || []);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <FloatingButtons />
-      
+
       <main className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-          <a href="/" className="hover:text-primary">Home</a>
+          <a href="/" className="hover:text-primary">
+            Home
+          </a>
           <span>/</span>
           <span className="text-foreground">All Products</span>
         </div>
 
         <div className="flex gap-6">
           {/* Sidebar Filters */}
-          <aside className={`${showFilters ? 'block' : 'hidden'} lg:block w-full lg:w-64 space-y-6`}>
+          <aside
+            className={`${
+              showFilters ? "block" : "hidden"
+            } lg:block w-full lg:w-64 space-y-6`}
+          >
             <div className="bg-card border border-border rounded-lg p-4">
               <h3 className="font-semibold mb-4">Filters</h3>
-              
+
               {/* Price Range */}
               <div className="space-y-4">
                 <h4 className="font-medium text-sm">Price Range</h4>
@@ -93,7 +116,10 @@ const Products = () => {
                 {categories.map((category) => (
                   <div key={category} className="flex items-center space-x-2">
                     <Checkbox id={category} />
-                    <label htmlFor={category} className="text-sm cursor-pointer">
+                    <label
+                      htmlFor={category}
+                      className="text-sm cursor-pointer"
+                    >
                       {category}
                     </label>
                   </div>
@@ -119,7 +145,10 @@ const Products = () => {
                 {[4, 3, 2, 1].map((rating) => (
                   <div key={rating} className="flex items-center space-x-2">
                     <Checkbox id={`rating-${rating}`} />
-                    <label htmlFor={`rating-${rating}`} className="text-sm cursor-pointer">
+                    <label
+                      htmlFor={`rating-${rating}`}
+                      className="text-sm cursor-pointer"
+                    >
                       {rating}+ Stars
                     </label>
                   </div>
@@ -143,7 +172,7 @@ const Products = () => {
                   Filters
                 </Button>
                 <p className="text-sm text-muted-foreground">
-                  Showing {products.length} products
+                  Showing {products?.length ?? 0} products
                 </p>
               </div>
 
@@ -154,8 +183,12 @@ const Products = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="popularity">Most Popular</SelectItem>
-                    <SelectItem value="price-low">Price: Low to High</SelectItem>
-                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                    <SelectItem value="price-low">
+                      Price: Low to High
+                    </SelectItem>
+                    <SelectItem value="price-high">
+                      Price: High to Low
+                    </SelectItem>
                     <SelectItem value="rating">Highest Rated</SelectItem>
                     <SelectItem value="newest">Newest First</SelectItem>
                   </SelectContent>
@@ -163,17 +196,17 @@ const Products = () => {
 
                 <div className="flex border border-border rounded-lg">
                   <Button
-                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                    variant={viewMode === "grid" ? "default" : "ghost"}
                     size="sm"
-                    onClick={() => setViewMode('grid')}
+                    onClick={() => setViewMode("grid")}
                     className="rounded-r-none"
                   >
                     <Grid className="h-4 w-4" />
                   </Button>
                   <Button
-                    variant={viewMode === 'list' ? 'default' : 'ghost'}
+                    variant={viewMode === "list" ? "default" : "ghost"}
                     size="sm"
-                    onClick={() => setViewMode('list')}
+                    onClick={() => setViewMode("list")}
                     className="rounded-l-none"
                   >
                     <List className="h-4 w-4" />
@@ -183,18 +216,26 @@ const Products = () => {
             </div>
 
             {/* Products Grid */}
-            <div className={`grid gap-6 ${
-              viewMode === 'grid' 
-                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-                : 'grid-cols-1'
-            }`}>
-              {products.map((product, index) => (
-                <div 
+            <div
+              className={`grid gap-6 ${
+                viewMode === "grid"
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  : "grid-cols-1"
+              }`}
+            >
+              {Array.isArray(products) && products.map((product, index) => (
+                <div
                   key={product.id}
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <ProductCard {...product} />
+                  <ProductCard
+                    id={product.id}
+                    name={product.name}
+                    price={product.price}
+                    description={product.description}
+                    image={product.imageUrl}
+                  />
                 </div>
               ))}
             </div>
@@ -202,11 +243,21 @@ const Products = () => {
             {/* Pagination */}
             <div className="mt-12 flex justify-center">
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">Previous</Button>
-                <Button variant="default" size="sm">1</Button>
-                <Button variant="outline" size="sm">2</Button>
-                <Button variant="outline" size="sm">3</Button>
-                <Button variant="outline" size="sm">Next</Button>
+                <Button variant="outline" size="sm">
+                  Previous
+                </Button>
+                <Button variant="default" size="sm">
+                  1
+                </Button>
+                <Button variant="outline" size="sm">
+                  2
+                </Button>
+                <Button variant="outline" size="sm">
+                  3
+                </Button>
+                <Button variant="outline" size="sm">
+                  Next
+                </Button>
               </div>
             </div>
           </div>

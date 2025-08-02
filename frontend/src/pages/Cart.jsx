@@ -6,54 +6,21 @@ import FloatingButtons from "@/components/Layout/FloatingButtons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { useCart } from "@/context/CartContext";
 
-const cartItems = [
-  {
-    id: 1,
-    name: "Premium Wireless Headphones",
-    price: 199,
-    originalPrice: 299,
-    quantity: 1,
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&h=150&fit=crop",
-    size: "One Size",
-    color: "Black"
-  },
-  {
-    id: 2,
-    name: "Smart Fitness Watch",
-    price: 299,
-    quantity: 1,
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150&h=150&fit=crop",
-    size: "42mm",
-    color: "Space Gray"
-  },
-  {
-    id: 3,
-    name: "Organic Cotton T-Shirt",
-    price: 45,
-    quantity: 2,
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=150&h=150&fit=crop",
-    size: "M",
-    color: "White"
-  }
-];
 
 const Cart = () => {
-  const [items, setItems] = useState(cartItems);
+  const {
+  items,
+  updateQuantity,
+  removeFromCart,
+  getCartTotal,
+  getCartCount
+} = useCart();
   const [promoCode, setPromoCode] = useState("");
 
-  const updateQuantity = (id, newQuantity) => {
-    if (newQuantity < 1) return;
-    setItems(items.map(item => 
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    ));
-  };
+  const subtotal = getCartTotal();
 
-  const removeItem = (id) => {
-    setItems(items.filter(item => item.id !== id));
-  };
-
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal > 100 ? 0 : 15;
   const discount = promoCode === "SAVE10" ? subtotal * 0.1 : 0;
   const total = subtotal + shipping - discount;
@@ -128,7 +95,8 @@ const Cart = () => {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => item.quantity > 1 && updateQuantity(item.id, item.quantity - 1)}
+
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
@@ -156,7 +124,7 @@ const Cart = () => {
                             variant="ghost"
                             size="icon"
                             className="text-destructive hover:text-destructive"
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => removeFromCart(item.id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
