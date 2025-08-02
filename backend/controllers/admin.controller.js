@@ -195,7 +195,7 @@ export const getCustomer = async (req, res) => {
         status: true,
         createdAt: true,
         updatedAt: true,
-        orders: true, 
+        orders: true,
       },
     });
     if (!customer) {
@@ -222,3 +222,32 @@ export const impersonateCustomer = async (req, res) => {
     res.status(500).json({ message: "Failed to impersonate customer" });
   }
 };
+
+// Admin Dashboard Stats
+export const getDashboardStats = async (req, res) => {
+  try {
+    const totalRevenueResult = await prisma.order.aggregate({
+      _sum: {
+        total: true,
+      },
+    });
+
+    const totalOrders = await prisma.order.count();
+    const totalCustomers = await prisma.user.count({
+      where: { role: 'customer' },
+    });
+    const totalProducts = await prisma.product.count();
+
+    res.json({
+      totalRevenue: totalRevenueResult._sum.total || 0,
+      totalOrders,
+      totalCustomers,
+      totalProducts,
+    });
+  } catch (err) {
+    console.error('Dashboard stats error:', err);
+    res.status(500).json({ message: 'Failed to fetch dashboard stats' });
+  }
+};
+
+
