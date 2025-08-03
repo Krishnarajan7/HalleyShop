@@ -37,17 +37,31 @@ export const checkProductExists = async (req, res, next) => {
 
 // Validate product data for POST and PUT
 export const validateProductData = (req, res, next) => {
-  const isUpdate = req.method === "PUT" || req.method === "PATCH";
-  const schema = isUpdate ? partialProductSchema : productSchema;
+  try {
+    const isUpdate = req.method === "PUT" || req.method === "PATCH";
+    const schema = isUpdate ? partialProductSchema : productSchema;
 
-  const result = schema.safeParse(req.body);
+    // Preprocess req.body fields
+    const processedBody = {
+      ...req.body,
+      price: req.body.price ? parseFloat(req.body.price) : undefined,
+      stock: req.body.stock ? parseInt(req.body.stock) : undefined,
+      tags: req.body.tags ? JSON.parse(req.body.tags) : [],
+    };
 
-  if (!result.success) {
-    const message = result.error.errors[0].message;
-    console.log("Product middleware: Validation error:", message);
-    return res.status(400).json({ error: message });
+    const result = schema.safeParse(processedBody);
+
+    if (!result.success) {
+      const message = result.error.errors[0].message;
+      console.log("Product middleware: Validation error:", message);
+      return res.status(400).json({ error: message });
+    }
+
+    req.validatedBody = result.data;
+    next();
+  } catch (err) {
+    console.error("Product middleware error:", err.message);
+    return res.status(400).json({ error: "Invalid product data format" });
   }
-
-  req.validatedBody = result.data;
-  next();
 };
+
