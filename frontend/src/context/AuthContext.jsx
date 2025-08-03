@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { useCart } from "./CartContext";
 
 export const AuthContext = createContext();
 
@@ -8,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [justLoggedOut, setJustLoggedOut] = useState(false);
+  const { mergeCartAfterLogin, clearCart } = useCart();
 
   useEffect(() => {
     const token = document.cookie
@@ -39,15 +41,41 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          console.warn("AuthContext: 401 detected, logging out...");
+          document.cookie = "token=; Max-Age=0; path=/; SameSite=Lax";
+          setUser(null);
+          setIsAdmin(false);
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, []);
+
   const login = async (email, password) => {
     const res = await axios.post(
       "http://localhost:5000/api/auth/login",
       { email, password },
       { withCredentials: true }
     );
-    console.log("AuthContext: Login response:", res.data); // Debug
+    console.log("AuthContext: Login response:", res.data);
+
     setUser(res.data.user);
     setIsAdmin(res.data.user.role === "admin");
+
+    // Merge guest cart into user cart
+    if (mergeCartAfterLogin) {
+      await mergeCartAfterLogin();
+    }
+
     return res.data;
   };
 
@@ -76,27 +104,27 @@ export const AuthProvider = ({ children }) => {
         {},
         { withCredentials: true }
       );
-      console.log("AuthContext: Logout successful"); // Debug
+      console.log("AuthContext: Logout successful");
       document.cookie = "token=; Max-Age=0; path=/; SameSite=Lax";
       setUser(null);
       setIsAdmin(false);
       setJustLoggedOut(true);
+
+      clearCart(false); 
     } catch (err) {
       console.error(
         "AuthContext: Logout error:",
         err.response?.data || err.message
-      ); // Debug
+      );
       throw err;
     }
   };
 
   const updateUser = async (data) => {
     try {
-      const res = await axios.put(
-        "http://localhost:5000/api/customer/profile", 
-        data,
-        { withCredentials: true }
-      );
+      const res = await axios.patch("http://localhost:5000/api/auth/me", data, {
+        withCredentials: true,
+      });
       console.log("AuthContext: Update user response:", res.data);
       setUser(res.data.user);
       setIsAdmin(res.data.user.role === "admin");

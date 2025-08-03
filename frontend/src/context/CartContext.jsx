@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import axios from "axios";
 
 const CartContext = createContext(undefined);
 
@@ -15,7 +16,7 @@ export const CartProvider = ({ children }) => {
   const [items, setItems] = useState([]);
   const { toast } = useToast();
 
-  // Load from localStorage on first load
+  // Load cart from localStorage
   useEffect(() => {
     const storedCart = localStorage.getItem("cartItems");
     if (storedCart) {
@@ -23,19 +24,20 @@ export const CartProvider = ({ children }) => {
     }
   }, []);
 
-  // Save to localStorage whenever cart updates
+  // Save cart to localStorage whenever it updates
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(items));
   }, [items]);
 
-  const addToCart = (product) => {
+  // ✅ Add to cart with wishlist support
+  const addToCart = (product, fromWishlist = false) => {
     setItems((currentItems) => {
       const existingItem = currentItems.find((item) => item.id === product.id);
 
       if (existingItem) {
         toast({
-          title: "Updated cart",
-          description: `${product.name} quantity updated in cart`,
+          title: "Updated Cart",
+          description: `${product.name} quantity updated in your cart.`,
         });
 
         return currentItems.map((item) =>
@@ -45,8 +47,10 @@ export const CartProvider = ({ children }) => {
         );
       } else {
         toast({
-          title: "Added to cart",
-          description: `${product.name} has been added to your cart`,
+          title: fromWishlist ? "Moved from Wishlist" : "Added to Cart",
+          description: `${product.name} ${
+            fromWishlist ? "has been moved to your cart." : "has been added to your cart."
+          }`,
         });
 
         return [...currentItems, { ...product, quantity: 1 }];
@@ -59,13 +63,14 @@ export const CartProvider = ({ children }) => {
       const item = currentItems.find((item) => item.id === id);
       if (item && showToast) {
         toast({
-          title: "Removed from cart",
-          description: `${item.name} has been removed from your cart`,
+          title: "Removed from Cart",
+          description: `${item.name} has been removed from your cart.`,
         });
       }
       return currentItems.filter((item) => item.id !== id);
     });
   };
+
   const updateQuantity = (id, quantity) => {
     if (quantity < 1) {
       removeFromCart(id);
@@ -83,8 +88,8 @@ export const CartProvider = ({ children }) => {
     setItems([]);
     if (showToast) {
       toast({
-        title: "Cart cleared",
-        description: "All items have been removed from your cart",
+        title: "Cart Cleared",
+        description: "All items have been removed from your cart.",
       });
     }
   };
@@ -97,6 +102,23 @@ export const CartProvider = ({ children }) => {
     return items.reduce((count, item) => count + item.quantity, 0);
   };
 
+  // ✅ Sync local cart with backend after login
+  const mergeCartAfterLogin = async () => {
+    if (items.length === 0) return;
+
+    try {
+      await axios.post(
+        "http://localhost:5000/api/cart/sync",
+        { items },
+        { withCredentials: true }
+      );
+      console.log("Cart synced successfully with backend.");
+      clearCart(false); // clear local cart after successful sync
+    } catch (error) {
+      console.error("Cart sync failed:", error);
+    }
+  };
+
   const value = {
     items,
     addToCart,
@@ -105,6 +127,7 @@ export const CartProvider = ({ children }) => {
     clearCart,
     getCartTotal,
     getCartCount,
+    mergeCartAfterLogin, 
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
