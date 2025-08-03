@@ -48,6 +48,7 @@
     price       Float
     stock       Int
     imageUrl    String?
+    imagePublicId String? 
     category    String
     brand       String?
     tags        String[] @default([])
