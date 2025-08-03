@@ -250,4 +250,133 @@ export const getDashboardStats = async (req, res) => {
   }
 };
 
+export const getDashboardAnalytics = async (req, res) => {
+  try {
+    const avgOrderValueResult = await prisma.order.aggregate({
+      _avg: { total: true },
+    });
+
+    const totalRevenueResult = await prisma.order.aggregate({
+      _sum: { total: true },
+    });
+    const totalProfit = (totalRevenueResult._sum.total || 0) * 0.2;
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const recentOrders = await prisma.order.count({
+      where: {
+        createdAt: { gte: sevenDaysAgo },
+      },
+    });
+
+
+    const allOrders = await prisma.order.findMany({
+      select: { products: true },
+    });
+
+    const productSales = {}; 
+    const categorySales = {};
+
+    for (const order of allOrders) {
+      const items = order.products; // [{ productId, quantity, price }]
+      if (Array.isArray(items)) {
+        for (const item of items) {
+          productSales[item.productId] =
+            (productSales[item.productId] || 0) + item.quantity;
+        }
+      }
+    }
+
+    let mostSoldProduct = "N/A";
+    if (Object.keys(productSales).length > 0) {
+      const sortedProducts = Object.entries(productSales).sort(
+        (a, b) => b[1] - a[1]
+      );
+      const topProductId = parseInt(sortedProducts[0][0]);
+      const topProduct = await prisma.product.findUnique({
+        where: { id: topProductId },
+      });
+      mostSoldProduct = topProduct?.name || "N/A";
+    }
+
+    // Calculate Revenue by Category
+    for (const order of allOrders) {
+      const items = order.products;
+      if (Array.isArray(items)) {
+        for (const item of items) {
+          const product = await prisma.product.findUnique({
+            where: { id: parseInt(item.productId) },
+          });
+          if (product) {
+            const category = product.category || "Uncategorized";
+            const revenue = item.price * item.quantity;
+            categorySales[category] = (categorySales[category] || 0) + revenue;
+          }
+        }
+      }
+    }
+
+    const revenueByCategory = Object.entries(categorySales).map(
+      ([category, revenue]) => ({
+        category,
+        revenue,
+      })
+    );
+
+    res.json({
+      avgOrderValue: avgOrderValueResult._avg.total || 0,
+      totalProfit,
+      recentOrders,
+      mostSoldProduct,
+      revenueByCategory,
+    });
+  } catch (err) {
+    console.error("Analytics error:", err);
+    res.status(500).json({ message: "Failed to fetch analytics" });
+  }
+};
+
+export const getOrdersTrend = async (req, res) => {
+  try {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // include today
+
+    const orders = await prisma.order.findMany({
+      where: {
+        createdAt: { gte: sevenDaysAgo },
+      },
+      select: { createdAt: true },
+    });
+
+    // Build trend data
+    const trendMap = {};
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const key = date.toISOString().split("T")[0]; // YYYY-MM-DD
+      trendMap[key] = 0;
+    }
+
+    orders.forEach((order) => {
+      const key = order.createdAt.toISOString().split("T")[0];
+      if (trendMap[key] !== undefined) {
+        trendMap[key] += 1;
+      }
+    });
+
+    const trendArray = Object.keys(trendMap)
+      .sort()
+      .map((date) => ({
+        day: date.slice(5), // MM-DD for chart
+        count: trendMap[date],
+      }));
+
+    res.json(trendArray);
+  } catch (err) {
+    console.error("Orders trend error:", err);
+    res.status(500).json({ message: "Failed to fetch orders trend" });
+  }
+};
+
+
 

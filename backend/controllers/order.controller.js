@@ -82,8 +82,10 @@ export const getMyOrders = async (req, res) => {
 
 export const cancelOrder = async (req, res) => {
   try {
+    const { id } = req.params;
+
     const order = await prisma.order.findUnique({
-      where: { id: req.params.id },
+      where: { id },
     });
 
     if (!order || order.userId !== req.user.id) {
@@ -92,25 +94,24 @@ export const cancelOrder = async (req, res) => {
         .json({ message: "Order not found or unauthorized" });
     }
 
-    if (order.status !== "Pending") {
+    if (!["Pending", "Processing"].includes(order.status)) {
       return res
         .status(400)
-        .json({ message: "Only pending orders can be canceled" });
+        .json({ message: "Only Pending or Processing orders can be canceled" });
     }
 
     const canceledOrder = await prisma.order.update({
-      where: { id: req.params.id },
+      where: { id },
       data: { status: "Canceled" },
     });
 
-    res
-      .status(200)
-      .json({ message: "Order canceled successfully", order: canceledOrder });
+    return res.status(200).json({
+      message: "Order canceled successfully",
+      order: canceledOrder,
+    });
   } catch (error) {
     console.error("Cancel Order Error:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to cancel order", error: error.message });
+    return res.status(500).json({ message: "Failed to cancel order" });
   }
 };
 
@@ -137,7 +138,6 @@ export const getOrderById = async (req, res) => {
 };
 
 // Admin Only - GET /api/orders/
-// Admin Only - GET /api/orders/
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
@@ -162,7 +162,6 @@ export const getAllOrders = async (req, res) => {
       .json({ message: "Failed to fetch all orders", error: error.message });
   }
 };
-
 
 // Admin Only - PUT /api/orders/:id/status
 export const updateOrderStatus = async (req, res) => {
