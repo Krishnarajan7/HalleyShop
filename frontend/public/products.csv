@@ -1,0 +1,41 @@
+name,description,price,category,brand,stock,imageUrl
+Smartphone X,Latest 5G smartphone with AMOLED display,799,Electronics,TechBrand,25,https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80
+Wireless Headphones,Noise-cancelling Bluetooth headphones,199,Electronics,SoundMax,50,https://images.unsplash.com/photo-1585386959984-a4155223f9e3?auto=format&fit=crop&w=600&q=80
+Gaming Laptop,High performance laptop for gaming,1199,Electronics,GigaTech,15,https://images.unsplash.com/photo-1587202372775-9891d498c9ad?auto=format&fit=crop&w=600&q=80
+Smartwatch Pro,Fitness tracking smartwatch,299,Electronics,TimeX,40,https://images.unsplash.com/photo-1603969409447-ba86143a03b4?auto=format&fit=crop&w=600&q=80
+4K TV,Ultra HD Smart TV with HDR,999,Electronics,VisionX,10,https://images.unsplash.com/photo-1601944170934-052b68919c37?auto=format&fit=crop&w=600&q=80
+Men's Jacket,Stylish winter jacket for men,120,Clothing,FashionHub,35,https://images.unsplash.com/photo-1520975918318-3a4f2b3f48b8?auto=format&fit=crop&w=600&q=80
+Women's Dress,Elegant evening dress,90,Clothing,StyleAura,60,https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=600&q=80
+Running Shoes,Lightweight running shoes,75,Clothing,Sportify,80,https://images.unsplash.com/photo-1589187155478-2b49c8e29b17?auto=format&fit=crop&w=600&q=80
+Casual Shirt,Cotton casual shirt for men,40,Clothing,UrbanWear,50,https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?auto=format&fit=crop&w=600&q=80
+Hoodie,Warm hoodie for winter,55,Clothing,CozyStyle,45,https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80
+Sofa Set,Luxury 3-piece sofa set,899,Home & Garden,HomeLux,8,https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80
+Dining Table,Modern wooden dining table,450,Home & Garden,FurniCraft,12,https://images.unsplash.com/photo-1598300042247-1c64cdbd9dfd?auto=format&fit=crop&w=600&q=80
+Table Lamp,Decorative bedside table lamp,60,Home & Garden,Lightify,70,https://images.unsplash.com/photo-1616627562549-62bd13e4da6c?auto=format&fit=crop&w=600&q=80
+Bed Frame,Queen size wooden bed frame,650,Home & Garden,SleepWell,5,https://images.unsplash.com/photo-1616627562549-62bd13e4da6c?auto=format&fit=crop&w=600&q=80
+Wall Art,Abstract painting wall art,120,Home & Garden,Artify,30,https://images.unsplash.com/photo-1596075780756-bc8f7ad3f5b8?auto=format&fit=crop&w=600&q=80
+Football,Professional size football,45,Sports,SportPro,100,https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=600&q=80
+Tennis Racket,Lightweight graphite racket,120,Sports,PowerHit,25,https://images.unsplash.com/photo-1583454110552-21dfeebd49d7?auto=format&fit=crop&w=600&q=80
+Yoga Mat,Non-slip yoga mat,35,Sports,ZenFlex,80,https://images.unsplash.com/photo-1599058917212-d750089bc07f?auto=format&fit=crop&w=600&q=80
+Basketball Shoes,High-grip basketball shoes,150,Sports,CourtKing,18,https://images.unsplash.com/photo-1600180758890-6f046cc1d1f0?auto=format&fit=crop&w=600&q=80
+Gym Bag,Spacious gym duffle bag,55,Sports,FitnessPro,60,https://images.unsplash.com/photo-1622576231329-6bdb0ff8b3cf?auto=format&fit=crop&w=600&q=80
+Mystery Novel,Bestselling crime thriller,15,Books,Readify,40,https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=600&q=80
+Cookbook,Delicious recipes from top chefs,30,Books,KitchenReads,25,https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=600&q=80
+Science Fiction Novel,Futuristic sci-fi adventure,20,Books,SciWorld,35,https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=600&q=80
+Self-help Guide,Improve your life with these tips,18,Books,LifeWorks,50,https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80
+Children's Book,Colorful story for kids,12,Books,KidLit,70,https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=600&q=80
+Lipstick Set,Matte finish lipstick combo,40,Beauty,Glamify,80,https://images.unsplash.com/photo-1500835556837-99ac94a94552?auto=format&fit=crop&w=600&q=80
+Face Cream,Hydrating daily moisturizer,35,Beauty,GlowSkin,100,https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=600&q=80
+Perfume,Elegant fragrance for women,70,Beauty,ScentAura,60,https://images.unsplash.com/photo-1618354692529-4f4924f6d45a?auto=format&fit=crop&w=600&q=80
+Hair Dryer,Professional salon hair dryer,55,Beauty,StylePro,40,https://images.unsplash.com/photo-1621839676306-3cf06da8e986?auto=format&fit=crop&w=600&q=80
+Makeup Kit,All-in-one makeup essentials,90,Beauty,BeautyBox,30,https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80
+Lego Set,Creative building blocks for kids,60,Toys,BlockFun,70,https://images.unsplash.com/photo-1586864388069-38c81a3ba8c1?auto=format&fit=crop&w=600&q=80
+Toy Car,Remote control racing car,40,Toys,Speedy,50,https://images.unsplash.com/photo-1558288200-f15b6b8e04b0?auto=format&fit=crop&w=600&q=80
+Dollhouse,Miniature dollhouse set,85,Toys,PlayHome,30,https://images.unsplash.com/photo-1581093807169-dfcbf47aef5a?auto=format&fit=crop&w=600&q=80
+Action Figure,Superhero action figure,25,Toys,HeroPlay,90,https://images.unsplash.com/photo-1609852071138-7fcfe6d920f2?auto=format&fit=crop&w=600&q=80
+Puzzle Game,1000-piece puzzle set,20,Toys,Brainy,100,https://images.unsplash.com/photo-1617196035886-d9b74e46494c?auto=format&fit=crop&w=600&q=80
+Car Tire,All-season radial tire,120,Automotive,RoadMaster,20,https://images.unsplash.com/photo-1583267743284-1f029cdef9d0?auto=format&fit=crop&w=600&q=80
+Engine Oil,Synthetic motor oil 5L,45,Automotive,LubePro,60,https://images.unsplash.com/photo-1637000454776-1c78146f60d1?auto=format&fit=crop&w=600&q=80
+Car Vacuum,Portable handheld car vacuum,65,Automotive,CleanRide,40,https://images.unsplash.com/photo-1624352209772-179f1a93bb3d?auto=format&fit=crop&w=600&q=80
+Dash Cam,Full HD car dash camera,95,Automotive,DriveSafe,30,https://images.unsplash.com/photo-1616587897420-54e32e19bb91?auto=format&fit=crop&w=600&q=80
+Car Cover,Waterproof all-weather cover,75,Automotive,AutoShield,25,https://images.unsplash.com/photo-1624352209772-179f1a93bb3d?auto=format&fit=crop&w=600&q=80
