@@ -24,6 +24,8 @@ const NewArrivals = lazy(() => import("./pages/NewArrivals"));
 const Brands = lazy(() => import("./pages/Brands"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const PlaceOrder = lazy(() => import("./pages/PlaceOrder"));
+import ImpersonationBanner from "@/components/admin/ImpersonationBanner";
+import { WishlistProvider } from "@/context/WishlistContext";
 
 const MIN_LOADER_TIME = 700;
 
@@ -33,13 +35,16 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <BrowserRouter>
-        <AuthProvider>
-          <CartProvider>
-            <Toaster />
-            <Sonner />
-            <AppRoutesWithLoader />
-          </CartProvider>
-        </AuthProvider>
+        <CartProvider>
+          <WishlistProvider>
+            <AuthProvider>
+              <Toaster />
+              <Sonner />
+              <ImpersonationBanner />
+              <AppRoutesWithLoader />
+            </AuthProvider>
+          </WishlistProvider>
+        </CartProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
