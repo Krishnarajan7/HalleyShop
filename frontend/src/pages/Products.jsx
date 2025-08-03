@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useEffect } from "react";
-import { Filter, Grid, List, SlidersHorizontal } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { Filter, Grid, List, SlidersHorizontal, X } from "lucide-react";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
 import FloatingButtons from "@/components/Layout/FloatingButtons";
@@ -37,25 +37,36 @@ const brands = [
 ];
 
 const Products = () => {
+  const location = useLocation();
+  const searchQuery = new URLSearchParams(location.search).get("search") || ""; // ✅ Get search param
+
   const [viewMode, setViewMode] = useState("grid");
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [showFilters, setShowFilters] = useState(false);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
+  // ✅ Fetch products with search query
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("/api/products", {
-          credentials: "include", // if auth is required
-        });
+        setLoading(true);
+
+        const url = searchQuery
+          ? `/api/products?search=${encodeURIComponent(searchQuery)}`
+          : `/api/products`;
+
+        const res = await fetch(url, { credentials: "include" });
 
         if (!res.ok) {
           throw new Error("Failed to fetch products");
         }
 
         const data = await res.json();
-        console.log("Fetched data:", data);
         setProducts(data.data?.products || []);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -65,10 +76,23 @@ const Products = () => {
     };
 
     fetchProducts();
-  }, []);
+    setCurrentPage(1); // Reset to first page on new search
+  }, [searchQuery]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProducts = products.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-hidden">
       <Header />
       <FloatingButtons />
 
@@ -83,12 +107,8 @@ const Products = () => {
         </div>
 
         <div className="flex gap-6">
-          {/* Sidebar Filters */}
-          <aside
-            className={`${
-              showFilters ? "block" : "hidden"
-            } lg:block w-full lg:w-64 space-y-6`}
-          >
+          {/* Sidebar Filters (Desktop) */}
+          <aside className="hidden lg:block w-64 space-y-6">
             <div className="bg-card border border-border rounded-lg p-4">
               <h3 className="font-semibold mb-4">Filters</h3>
 
@@ -104,9 +124,9 @@ const Products = () => {
                   className="w-full"
                 />
                 <div className="flex items-center gap-2 text-sm">
-                  <Input value={`$${priceRange[0]}`} className="h-8" readOnly />
+                  <Input value={`₹${priceRange[0]}`} className="h-8" readOnly />
                   <span>-</span>
-                  <Input value={`$${priceRange[1]}`} className="h-8" readOnly />
+                  <Input value={`₹${priceRange[1]}`} className="h-8" readOnly />
                 </div>
               </div>
 
@@ -116,10 +136,7 @@ const Products = () => {
                 {categories.map((category) => (
                   <div key={category} className="flex items-center space-x-2">
                     <Checkbox id={category} />
-                    <label
-                      htmlFor={category}
-                      className="text-sm cursor-pointer"
-                    >
+                    <label htmlFor={category} className="text-sm cursor-pointer">
                       {category}
                     </label>
                   </div>
@@ -138,22 +155,6 @@ const Products = () => {
                   </div>
                 ))}
               </div>
-
-              {/* Rating */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-sm">Rating</h4>
-                {[4, 3, 2, 1].map((rating) => (
-                  <div key={rating} className="flex items-center space-x-2">
-                    <Checkbox id={`rating-${rating}`} />
-                    <label
-                      htmlFor={`rating-${rating}`}
-                      className="text-sm cursor-pointer"
-                    >
-                      {rating}+ Stars
-                    </label>
-                  </div>
-                ))}
-              </div>
             </div>
           </aside>
 
@@ -165,14 +166,16 @@ const Products = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setShowFilters(!showFilters)}
+                  onClick={() => setShowFilters(true)}
                   className="lg:hidden"
                 >
                   <SlidersHorizontal className="h-4 w-4 mr-2" />
                   Filters
                 </Button>
                 <p className="text-sm text-muted-foreground">
-                  Showing {products?.length ?? 0} products
+                  {searchQuery
+                    ? `Results for "${searchQuery}" (${products.length} found)`
+                    : `Showing ${paginatedProducts.length} of ${products.length} products`}
                 </p>
               </div>
 
@@ -183,12 +186,8 @@ const Products = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="popularity">Most Popular</SelectItem>
-                    <SelectItem value="price-low">
-                      Price: Low to High
-                    </SelectItem>
-                    <SelectItem value="price-high">
-                      Price: High to Low
-                    </SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
                     <SelectItem value="rating">Highest Rated</SelectItem>
                     <SelectItem value="newest">Newest First</SelectItem>
                   </SelectContent>
@@ -216,55 +215,114 @@ const Products = () => {
             </div>
 
             {/* Products Grid */}
-            <div
-              className={`grid gap-6 ${
-                viewMode === "grid"
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                  : "grid-cols-1"
-              }`}
-            >
-              {Array.isArray(products) && products.map((product, index) => (
-                <div
-                  key={product.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <ProductCard
-                    id={product.id}
-                    name={product.name}
-                    price={product.price}
-                    description={product.description}
-                    image={product.imageUrl}
-                  />
-                </div>
-              ))}
-            </div>
+            {loading ? (
+              <p>Loading products...</p>
+            ) : paginatedProducts.length > 0 ? (
+              <div
+                className={`grid gap-6 ${
+                  viewMode === "grid"
+                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
+                    : "grid-cols-1"
+                }`}
+              >
+                {paginatedProducts.map((product) => (
+                  <div key={product.id} className="animate-fade-in">
+                    <ProductCard
+                      id={product.id}
+                      name={product.name}
+                      price={product.price}
+                      description={product.description}
+                      image={product.imageUrl}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>No products found</p>
+            )}
 
             {/* Pagination */}
-            <div className="mt-12 flex justify-center">
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">
-                  Previous
-                </Button>
-                <Button variant="default" size="sm">
-                  1
-                </Button>
-                <Button variant="outline" size="sm">
-                  2
-                </Button>
-                <Button variant="outline" size="sm">
-                  3
-                </Button>
-                <Button variant="outline" size="sm">
-                  Next
-                </Button>
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  {[...Array(totalPages)].map((_, index) => (
+                    <Button
+                      key={index}
+                      variant={currentPage === index + 1 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => handlePageChange(index + 1)}
+                    >
+                      {index + 1}
+                    </Button>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </main>
 
       <Footer />
+
+      {/* Mobile Filters Drawer */}
+      {showFilters && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex">
+          <div className="bg-card w-64 h-full p-4 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold">Filters</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowFilters(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            {/* Copy same filter content from sidebar */}
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <h4 className="font-medium text-sm">Price Range</h4>
+                <Slider
+                  value={priceRange}
+                  onValueChange={setPriceRange}
+                  max={1000}
+                  min={0}
+                  step={10}
+                />
+              </div>
+              <div>
+                <h4 className="font-medium text-sm">Categories</h4>
+                {categories.map((cat) => (
+                  <div key={cat} className="flex items-center space-x-2">
+                    <Checkbox id={`mobile-${cat}`} />
+                    <label htmlFor={`mobile-${cat}`}>{cat}</label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div
+            className="flex-1"
+            onClick={() => setShowFilters(false)}
+          ></div>
+        </div>
+      )}
     </div>
   );
 };

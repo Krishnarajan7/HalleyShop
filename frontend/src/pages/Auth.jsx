@@ -10,6 +10,7 @@ import { AuthContext } from "../context/AuthContext"; // Adjust path
 import { useNavigate, useLocation } from "react-router-dom";
 import PageLoader from "@/components/ui/PageLoader";
 import { toast } from "@/components/ui/sonner";
+import { useCart } from "@/context/CartContext";
 
 const MIN_LOADER_TIME = 700;
 
@@ -49,6 +50,7 @@ const Auth = () => {
   const [authError, setAuthError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const { mergeCartAfterLogin } = useCart();
 
   // Handle logout feedback
   useEffect(() => {
@@ -82,6 +84,7 @@ const Auth = () => {
   };
 
   // Login handler
+
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!validateEmail(loginEmail)) {
@@ -92,25 +95,29 @@ const Auth = () => {
       toast.error("Password is required.");
       return;
     }
+
     setIsLoading(true);
     try {
       const res = await login(loginEmail, loginPassword);
       toast.success("Login successful!");
 
-      // Redirect immediately after login
-      if (location.state?.from) {
-        navigate(location.state.from, { replace: true });
-      } else if (res.user.role === "admin") {
-        navigate("/dashboard/admin", { replace: true });
-      } else {
-        navigate("/dashboard/customer", { replace: true });
-      }
+      // ✅ Merge guest cart into backend cart
+      await mergeCartAfterLogin();
+
+      // ✅ Redirect after login
+      const redirectTo =
+        location.state?.from ||
+        (res.user.role === "admin"
+          ? "/dashboard/admin"
+          : "/dashboard/customer");
+
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       const errorMsg =
         err.response?.data?.message || err.message || "Login failed";
       toast.error(errorMsg);
     } finally {
-      setTimeout(() => setIsLoading(false), MIN_LOADER_TIME);
+      setIsLoading(false);
     }
   };
 
@@ -171,9 +178,7 @@ const Auth = () => {
       console.error("Auth: Register error:", errorMsg); // Debug
       setAuthError(errorMsg);
       toast.error(errorMsg);
-      const elapsed = Date.now() - start;
-      const wait = Math.max(0, MIN_LOADER_TIME - elapsed);
-      setTimeout(() => setIsLoading(false), wait);
+      setIsLoading(false);
     }
   };
 

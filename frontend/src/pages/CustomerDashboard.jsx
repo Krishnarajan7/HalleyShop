@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Overview from "@/components/customer/Overview";
 import Orders from "@/components/customer/Orders";
-import Wishlist from "@/components/customer/Wishlist";
+import Wishlist from "@/components/customer/DashboardWishlist";
 import Addresses from "@/components/customer/Addresses";
 import Settings from "@/components/customer/Settings";
 import Header from "@/components/Layout/Header";
