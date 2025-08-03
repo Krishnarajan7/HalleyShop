@@ -29,7 +29,7 @@ const featuredProducts = [
     originalPrice: 120,
     rating: 4.9,
     reviews: 89,
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&auto=format",
+    image: "/images/lamp.jpg",
     badge: "Sale",
     discount: 26
   },
@@ -39,7 +39,7 @@ const featuredProducts = [
     price: 45,
     rating: 4.7,
     reviews: 203,
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop&auto=format",
+    image: "/images/tshirt.jpeg",
     badge: "Trending" 
   },
   {
@@ -49,7 +49,7 @@ const featuredProducts = [
     originalPrice: 599,
     rating: 4.9,
     reviews: 78,
-    image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400&h=400&fit=crop&auto=format",
+    image: "/images/cameralens.jpg",
     badge: "Sale" ,
     discount: 25
   },
@@ -79,7 +79,7 @@ const featuredProducts = [
     price: 39,
     rating: 4.6,
     reviews: 92,
-    image: "https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?w=400&h=400&fit=crop&auto=format",
+    image: "/images/mug.jpg",
     badge: "Trending" 
   }
 ];

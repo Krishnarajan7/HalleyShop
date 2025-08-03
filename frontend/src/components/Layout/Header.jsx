@@ -4,12 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { Link } from "react-router-dom";
+import { useWishlist } from "@/context/WishlistContext";
+import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { getCartCount } = useCart();
+  const { wishlistItems } = useWishlist();
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-lg border-b border-border shadow-sm">
@@ -81,15 +93,18 @@ const Header = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="hidden md:flex border border-transparent hover:border-red-200 hover:bg-red-50"
+              className="relative hidden md:flex border border-transparent hover:border-red-200 hover:bg-red-50"
               asChild
             >
               <Link to="/wishlist">
                 <Heart className="h-5 w-5 text-red-500 hover:text-red-600" />
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {wishlistItems.length}
+                </span>
               </Link>
             </Button>
 
-            <Button 
+            <Button
               variant="ghost"
               size="icon"
               className="relative border border-transparent hover:border-blue-200 hover:bg-blue-50"
@@ -189,10 +204,16 @@ const Header = () => {
               </Link>
               <Link
                 to="/wishlist"
-                className="block py-3 px-2 text-sm font-medium text-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors"
+                className="block py-3 px-2 text-sm font-medium text-foreground hover:text-primary hover:bg-muted/50 rounded-lg transition-colors relative"
               >
                 Wishlist
+                {wishlistItems.length > 0 && (
+                  <span className="absolute top-1 right-2 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {wishlistItems.length}
+                  </span>
+                )}
               </Link>
+
               <Link
                 to={
                   user

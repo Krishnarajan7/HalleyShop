@@ -3,26 +3,27 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useWishlist } from "@/context/WishlistContext";
 
 const ProductCard = ({
   id,
   name,
   price,
   originalPrice,
-  rating,
-  reviews,
+  rating = 4,
+  reviews = 0,
   image,
   badge,
   discount,
 }) => {
   const { addToCart, items } = useCart();
-  const { user } = useAuth();
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  const [redirectToCart, setRedirectToCart] = useState(false);
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const [redirectToCart, setRedirectToCart] = useState(false);
 
   const isAuthenticated = !!user;
 
@@ -34,7 +35,8 @@ const ProductCard = ({
 
   const handleAddToCart = () => {
     if (!isAuthenticated) {
-      navigate("/auth", { state: { from: "/cart" } });
+      toast.warning("Please login to add items to cart");
+      navigate("/auth", { state: { from: location.pathname } });
       return;
     }
     addToCart({ id, name, price, originalPrice, image });
@@ -43,18 +45,21 @@ const ProductCard = ({
 
   const handleWishlistToggle = () => {
     if (!isAuthenticated) {
+      toast.warning("Please login to manage wishlist");
       navigate("/auth", { state: { from: "/wishlist" } });
       return;
     }
-    setIsWishlisted(!isWishlisted);
-    toast[isWishlisted ? "warning" : "success"](
-      `${name} ${isWishlisted ? "removed from" : "added to"} wishlist`
-    );
+    if (isInWishlist(id)) {
+      removeFromWishlist(id);
+    } else {
+      addToWishlist({ id, name, price, originalPrice, image });
+    }
   };
 
   const handlePlaceOrder = () => {
     if (!isAuthenticated) {
-      navigate("/auth", { state: { from: "/place-order", productId: id } });
+      toast.warning("Please login to place an order");
+      navigate("/auth", { state: { from: "/cart", productId: id } });
       return;
     }
     addToCart({ id, name, price, originalPrice, image });
@@ -75,40 +80,65 @@ const ProductCard = ({
     "Best Seller": "bg-primary text-primary-foreground",
   };
 
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-md overflow-hidden animate-pulse">
+        <div className="h-48 bg-gray-200"></div>
+        <div className="p-4 space-y-3">
+          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-8 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="group relative bg-white rounded-2xl border border-gray-200 hover:border-primary shadow-md hover:shadow-xl overflow-hidden transition-all duration-300">
-      <div className="relative overflow-hidden bg-gray-50">
+      {/* Image Section */}
+      <div className="relative overflow-hidden bg-gray-50 rounded-t-2xl">
         <img
           src={image}
           alt={name}
-          className="w-full h-48 md:h-56 object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => (e.target.src = "/placeholder.png")}
         />
-        {badge && (
-          <Badge className={`absolute top-3 left-3 ${badgeVariants[badge] || ""}`}>
-            {badge}
-          </Badge>
-        )}
-        {discount && (
-          <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-            -{discount}%
-          </div>
-        )}
+
+        {/* Wishlist Button */}
         <Button
           variant="ghost"
           size="icon"
           onClick={handleWishlistToggle}
-          className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm hover:bg-red-100 transition-all border"
+          className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm hover:bg-red-100 border rounded-full"
         >
           <Heart
-            className={`h-5 w-5 transition-colors ${
-              isWishlisted ? "text-red-500 fill-red-500" : "text-gray-500"
+            className={`h-5 w-5 ${
+              isInWishlist(id) ? "text-red-500 fill-red-500" : "text-gray-500"
             }`}
           />
         </Button>
+
+        {/* Discount Badge */}
+        {discount && (
+          <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+            -{discount}%
+          </div>
+        )}
+
+        {/* Badge */}
+        {badge && (
+          <Badge
+            className={`absolute bottom-3 left-3 ${badgeVariants[badge] || ""}`}
+          >
+            {badge}
+          </Badge>
+        )}
       </div>
 
-      <div className="p-4 space-y-3">
-        <div className="flex items-center gap-2 text-yellow-500">
+      {/* Product Details */}
+      <div className="p-4 space-y-2">
+        {/* Rating */}
+        <div className="flex items-center gap-1 text-yellow-500">
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
@@ -119,25 +149,48 @@ const ProductCard = ({
               }`}
             />
           ))}
-          <span className="text-xs text-gray-500">({reviews})</span>
+          <span className="text-xs text-gray-500 ml-1">({reviews})</span>
         </div>
+
+        {/* Name */}
         <h3 className="font-semibold text-base md:text-lg line-clamp-2 hover:text-primary transition-colors">
           {name}
         </h3>
+
+        {/* Price */}
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-primary">{formatPrice(price)}</span>
+          <span className="text-lg font-bold text-primary">
+            {formatPrice(price)}
+          </span>
           {originalPrice && (
-            <span className="text-sm text-muted-foreground line-through">
+            <span className="text-sm text-gray-400 line-through">
               {formatPrice(originalPrice)}
             </span>
           )}
         </div>
+
+        {/* Free Shipping Info */}
+        <p className="text-xs text-green-600 flex items-center gap-1">
+          <Truck className="h-3 w-3" /> Free Delivery Available
+        </p>
+
+        {/* Buttons */}
         <div className="grid grid-cols-2 gap-2 pt-2">
-          <Button onClick={handleAddToCart} variant="outline" size="sm">
+          <Button
+            onClick={handleAddToCart}
+            variant="outline"
+            size="sm"
+            className="w-full"
+          >
             <ShoppingCart className="h-4 w-4 mr-2" />
             Cart
           </Button>
-          <Button onClick={handlePlaceOrder} variant="default" size="sm">
+          <Button
+            onClick={handlePlaceOrder}
+            variant="default"
+            size="sm"
+            className="w-full"
+          >
             <Truck className="h-4 w-4 mr-2" />
             Order
           </Button>

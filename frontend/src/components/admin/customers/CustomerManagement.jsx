@@ -9,9 +9,11 @@ import CustomerModal from "./CustomerModal";
 import CustomerForm from "./CustomerForm";
 import CustomerPagination from "./CustomerPagination";
 import { useToast } from "@/components/ui/use-toast";
+import PageLoader from "@/components/ui/PageLoader";
 
 const CustomerManagement = () => {
   const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 1,
@@ -136,19 +138,26 @@ const CustomerManagement = () => {
     }
   };
 
-  const handleImpersonate = async (customerId) => {
+  const handleImpersonate = async (customerId, customerName) => {
     try {
+      setLoading(true); // Show PageLoader immediately
+
       await fetch(`/api/admin/customers/${customerId}/impersonate`, {
         method: "POST",
         credentials: "include",
       });
-      toast({
-        title: "Impersonation started",
-        description: "You're now impersonating a customer.",
-      });
-      window.location.href = "/customer-portal";
+
+      localStorage.setItem(
+        "impersonating",
+        JSON.stringify({ customerId, customerName })
+      );
+
+      setTimeout(() => {
+        window.location.href = "/customer-portal"; // Redirect after loader
+      }, 800);
     } catch (err) {
-      console.error(err);
+      console.error("Error starting impersonation:", err);
+      setLoading(false);
     }
   };
 
@@ -192,6 +201,10 @@ const CustomerManagement = () => {
     );
   }
 
+  if (loading) {
+    return <PageLoader />;
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -222,7 +235,12 @@ const CustomerManagement = () => {
                 onView={handleEditCustomer} // using form modal
                 onToggleStatus={handleToggleStatus}
                 onDelete={(customer) => handleDeleteCustomer(customer.id)}
-                onImpersonate={(customer) => handleImpersonate(customer.id)}
+                onImpersonate={(customer) =>
+                  handleImpersonate(
+                    customer.id,
+                    `${customer.firstName} ${customer.lastName}`
+                  )
+                }
               />
 
               <div>

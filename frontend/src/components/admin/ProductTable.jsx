@@ -8,17 +8,22 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import ProductActions from "./ProductActions";
-import ProductRow from "./ProductRow";
 
 const ProductTable = ({ products = [], onEdit, onDelete, onView }) => {
-  const getStatusBadge = (status = "inactive") => {
-    const variants = {
-      active: "bg-success/10 text-success border-success/20",
-      "out-of-stock":
-        "bg-destructive/10 text-destructive border-destructive/20",
-      inactive: "bg-muted t ext-muted-foreground border-muted",
-    };
-    return variants[status] || variants.inactive;
+  const getStatusBadgeClass = (status) => {
+    if (status === "available") {
+      return "bg-green-100 text-green-700 border-green-300";
+    }
+    if (status === "out-of-stock") {
+      return "bg-red-100 text-red-700 border-red-300";
+    }
+    return "bg-gray-100 text-gray-600 border-gray-300";
+  };
+
+  const formatStatusLabel = (status) => {
+    if (status === "available") return "Available";
+    if (status === "out-of-stock") return "Out of Stock";
+    return "Unknown";
   };
 
   return (
@@ -79,18 +84,12 @@ const ProductTable = ({ products = [], onEdit, onDelete, onView }) => {
               <TableCell>
                 <Badge
                   variant="outline"
-                  className={`text-xs ${getStatusBadge(product.status)}`}
+                  className={`text-xs ${getStatusBadgeClass(product.status)}`}
                 >
-                  {product.status === "out-of-stock"
-                    ? "Out of Stock"
-                    : product.status
-                    ? product.status.charAt(0).toUpperCase() +
-                      product.status.slice(1)
-                    : "Unknown"}
+                  {formatStatusLabel(product.status)}
                 </Badge>
               </TableCell>
-
-              <TableCell className="text-sm">{product.sales}</TableCell>
+              <TableCell className="text-sm">{product.sales ?? 0}</TableCell>
               <TableCell className="text-sm text-muted-foreground">
                 {new Date(product.createdAt).toLocaleDateString()}
               </TableCell>

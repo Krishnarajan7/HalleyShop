@@ -11,6 +11,8 @@ import ProductPagination from "./ProductPagination";
 import ProductUpload from "./ProductUpload";
 import ProductTable from "./ProductTable";
 import { useToast } from "@/components/ui/use-toast";
+import axios from "axios";
+import Papa from "papaparse";
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
@@ -29,13 +31,17 @@ const ProductManagement = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const [activeTab, setActiveTab] = useState("products");
 
   const fetchProducts = async () => {
     try {
-      const params = new URLSearchParams({
+      setLoading(true);
+      const params = {
         page: currentPage,
-        pageSize, // Include pageSize in the query
+        pageSize,
         search: searchTerm,
         sortBy: "createdAt",
         order: "desc",
@@ -43,21 +49,24 @@ const ProductManagement = () => {
         status: filters.status,
         priceRange: filters.priceRange,
         brand: filters.brand,
-      });
+      };
 
-      const res = await fetch(`/api/products?${params.toString()}`);
-      if (!res.ok) throw new Error("Failed to fetch products");
-      const data = await res.json();
+      const { data } = await axios.get("/api/products", { params });
 
       setProducts(data.data.products || []);
       setTotalItems(data.data.totalItems || 0);
       setTotalPages(data.data.totalPages || 1);
     } catch (err) {
       console.error("Failed to fetch products:", err);
+      toast({
+        title: "Error",
+        description: "Failed to load products.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
-
-  const [activeTab, setActiveTab] = useState("products");
 
   useEffect(() => {
     if (activeTab === "products") {
@@ -65,27 +74,30 @@ const ProductManagement = () => {
     }
   }, [currentPage, pageSize, searchTerm, filters, activeTab]);
 
-  const handleAddProduct = async (productData) => {
+  const handleAddProduct = async (formData) => {
     try {
-      const res = await fetch("/api/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productData),
+      setLoading(true);
+      const { data } = await axios.post("/api/products", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
       });
-
-      if (!res.ok) throw new Error("Failed to add product");
-      console.log("Response:", await res.text()); // Moved here
-
-      setCurrentPage(1);
-      await fetchProducts();
-      setShowForm(false);
 
       toast({
-        title: "Product added",
-        description: `${productData.name} was successfully added.`,
+        title: "Success",
+        description: data.message || "Product added successfully",
       });
-    } catch (err) {
-      console.error(err);
+
+      await fetchProducts();
+      setShowForm(false);
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to add product",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -94,29 +106,38 @@ const ProductManagement = () => {
     setShowForm(true);
   };
 
-  const handleUpdateProduct = async (productData) => {
+  const handleUpdateProduct = async (formData) => {
     if (!editingProduct) return;
 
     try {
-      const res = await fetch(`/api/products/${editingProduct.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productData),
+      setLoading(true);
+      const { data } = await axios.put(
+        `/api/products/${editingProduct.id}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        }
+      );
+
+      toast({
+        title: "Success",
+        description: data.message || "Product updated successfully",
       });
 
-      if (!res.ok) throw new Error("Failed to update product");
-
-      setCurrentPage(1);
       await fetchProducts();
       setEditingProduct(null);
       setShowForm(false);
-
+    } catch (error) {
+      console.error(error);
       toast({
-        title: "Product updated",
-        description: `${productData.name} was successfully updated.`,
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to update product",
+        variant: "destructive",
       });
-    } catch (err) {
-      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -129,23 +150,26 @@ const ProductManagement = () => {
     if (!productToDelete) return;
 
     try {
-      const res = await fetch(`/api/products/${productToDelete}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) throw new Error("Failed to delete product");
+      setLoading(true);
+      await axios.delete(`/api/products/${productToDelete}`);
 
       toast({
         title: "Product deleted",
         description: `Product was successfully deleted.`,
       });
 
-      setCurrentPage(1);
       await fetchProducts();
       setProductToDelete(null);
       setShowDeleteModal(false);
     } catch (err) {
       console.error(err);
+      toast({
+        title: "Error",
+        description: "Failed to delete product.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -155,7 +179,7 @@ const ProductManagement = () => {
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   };
 
   const handleClearFilters = () => {
@@ -178,7 +202,6 @@ const ProductManagement = () => {
 
   const handleImageUpload = (files) => {
     console.log("Uploading images:", files);
-
     toast({
       title: "Images Uploaded",
       description: "Images were successfully uploaded.",
@@ -186,10 +209,36 @@ const ProductManagement = () => {
   };
 
   const handleCSVUpload = (file) => {
-    console.log("Importing CSV:", file);
-    toast({
-      title: "CSV Imported",
-      description: "Products were imported from CSV file.",
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          for (const row of results.data) {
+            await axios.post("/api/products", {
+              name: row.name,
+              description: row.description,
+              price: parseFloat(row.price),
+              category: row.category,
+              brand: row.brand,
+              stock: parseInt(row.stock),
+              imageUrl: row.imageUrl,
+            });
+          }
+          toast({
+            title: "Products Uploaded",
+            description: `${results.data.length} products added successfully.`,
+          });
+          fetchProducts();
+        } catch (error) {
+          console.error(error);
+          toast({
+            title: "Upload Failed",
+            description: "Could not process the CSV file.",
+            variant: "destructive",
+          });
+        }
+      },
     });
   };
 
@@ -206,7 +255,9 @@ const ProductManagement = () => {
       <div className="space-y-6">
         <ProductForm
           initialData={editingProduct || undefined}
-          onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct}
+          onSubmit={(formData, isEdit) =>
+            isEdit ? handleUpdateProduct(formData) : handleAddProduct(formData)
+          }
           onCancel={() => {
             setShowForm(false);
             setEditingProduct(null);
@@ -222,11 +273,15 @@ const ProductManagement = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Product Management</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowForm(true)}>
+          <Button
+            variant="outline"
+            onClick={() => setActiveTab("upload")}
+            disabled={loading}
+          >
             <Upload className="h-4 w-4 mr-2" />
             Upload
           </Button>
-          <Button onClick={() => setShowForm(true)}>
+          <Button onClick={() => setShowForm(true)} disabled={loading}>
             <Plus className="h-4 w-4 mr-2" />
             Add Product
           </Button>
@@ -249,7 +304,9 @@ const ProductManagement = () => {
           />
           <Card>
             <CardHeader>
-              <CardTitle>Products ({totalItems})</CardTitle>
+              <CardTitle>
+                {loading ? "Loading products..." : `Products (${totalItems})`}
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <ProductTable

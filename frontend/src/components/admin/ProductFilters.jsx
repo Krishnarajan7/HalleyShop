@@ -3,14 +3,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { X, Filter } from "lucide-react";
 
-
 const categories = [
   "Electronics", "Clothing", "Home & Garden", "Sports", "Books", "Beauty", "Toys", "Automotive"
 ];
 
 const statuses = [
-  { value: "active", label: "Active" },
-  { value: "inactive", label: "Inactive" },
+  { value: "available", label: "Available" },
   { value: "out-of-stock", label: "Out of Stock" }
 ];
 
@@ -51,6 +49,7 @@ const ProductFilters = ({ filters, onFilterChange, onClearFilters, activeFilters
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Category Filter */}
         <Select value={filters.category} onValueChange={(value) => onFilterChange("category", value)}>
           <SelectTrigger>
             <SelectValue placeholder="Category" />
@@ -65,6 +64,7 @@ const ProductFilters = ({ filters, onFilterChange, onClearFilters, activeFilters
           </SelectContent>
         </Select>
 
+        {/* Status Filter */}
         <Select value={filters.status} onValueChange={(value) => onFilterChange("status", value)}>
           <SelectTrigger>
             <SelectValue placeholder="Status" />
@@ -79,6 +79,7 @@ const ProductFilters = ({ filters, onFilterChange, onClearFilters, activeFilters
           </SelectContent>
         </Select>
 
+        {/* Price Range Filter */}
         <Select value={filters.priceRange} onValueChange={(value) => onFilterChange("priceRange", value)}>
           <SelectTrigger>
             <SelectValue placeholder="Price Range" />
@@ -93,6 +94,7 @@ const ProductFilters = ({ filters, onFilterChange, onClearFilters, activeFilters
           </SelectContent>
         </Select>
 
+        {/* Brand Filter */}
         <Select value={filters.brand} onValueChange={(value) => onFilterChange("brand", value)}>
           <SelectTrigger>
             <SelectValue placeholder="Brand" />
