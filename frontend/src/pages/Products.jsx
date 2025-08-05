@@ -38,7 +38,7 @@ const brands = [
 
 const Products = () => {
   const location = useLocation();
-  const searchQuery = new URLSearchParams(location.search).get("search") || ""; // ✅ Get search param
+  const searchQuery = new URLSearchParams(location.search).get("search") || ""; //  Get search param
 
   const [viewMode, setViewMode] = useState("grid");
   const [priceRange, setPriceRange] = useState([0, 1000]);
@@ -50,7 +50,7 @@ const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  // ✅ Fetch products with search query
+  // Fetch products with search query
   useEffect(() => {
     const fetchProducts = async () => {
       try {

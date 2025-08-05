@@ -11,7 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 const Wishlist = () => {
   const { wishlistItems, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
-  const { user } = useAuth(); // ✅ Auth context
+  const { user } = useAuth(); // Auth context
   const navigate = useNavigate();
 
   const handleAddToCart = async (item) => {
@@ -24,7 +24,7 @@ const Wishlist = () => {
     try {
       await addToCart(item);
       toast.success(`${item.name} added to cart`);
-      removeFromWishlist(item.id); // ✅ Remove from wishlist after adding to cart
+      removeFromWishlist(item.id); // Remove from wishlist after adding to cart
     } catch (error) {
       console.error("Error adding to cart:", error);
       toast.error("Failed to add item to cart");
@@ -33,7 +33,7 @@ const Wishlist = () => {
 
   const handleRemove = async (item) => {
     try {
-      await removeFromWishlist(item.id); // ✅ Call wishlist context remove
+      await removeFromWishlist(item.id); // Call wishlist context remove
       toast.warning(`${item.name} removed from wishlist`);
     } catch (error) {
       console.error("Error removing from wishlist:", error);

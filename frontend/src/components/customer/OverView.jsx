@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Package, DollarSign, Heart } from "lucide-react";
 
 const Overview = ({ user, orders = [], wishlistItems = [] }) => {
-  // ✅ Calculate total spent dynamically
+  // Calculate total spent dynamically
   const totalSpent = orders.reduce((sum, order) => sum + (order.total || 0), 0);
 
   const formatCurrency = (amount) =>

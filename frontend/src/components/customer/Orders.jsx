@@ -66,7 +66,7 @@ const Orders = ({ orders, loading, error }) => {
           : "N/A";
         const status = order.status || "Pending";
 
-        const isCancelable = ["Processing"].includes(status); // ✅ Only allow cancel for Processing
+        const isCancelable = ["Processing"].includes(status); // Only allow cancel for Processing
 
         return (
           <Card key={order.id} className="shadow-sm hover:shadow-md transition">

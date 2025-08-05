@@ -101,10 +101,10 @@ const Auth = () => {
       const res = await login(loginEmail, loginPassword);
       toast.success("Login successful!");
 
-      // ✅ Merge guest cart into backend cart
+      // Merge guest cart into backend cart
       await mergeCartAfterLogin();
 
-      // ✅ Redirect after login
+      // Redirect after login
       const redirectTo =
         location.state?.from ||
         (res.user.role === "admin"
