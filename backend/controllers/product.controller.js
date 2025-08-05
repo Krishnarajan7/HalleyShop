@@ -132,15 +132,15 @@ export const getProducts = async (req, res) => {
       },
     });
 
-    res.json({
-      success: true,
-      data: {
-        products,
-        totalItems,
-        totalPages,
-        currentPage: parseInt(page),
-      },
-    });
+    // res.json({
+    //   success: true,
+    //   data: {
+    //     products,
+    //     totalItems,
+    //     totalPages,
+    //     currentPage: parseInt(page),
+    //   },
+    // });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch products" });
